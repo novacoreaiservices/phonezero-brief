@@ -465,6 +465,13 @@ def git_push_brief(message: str) -> str:
     if not st.stdout.strip():
         return "clean"
     subprocess.run(["git", "commit", "-m", message], cwd=BRIEF_DIR, check=True)
+    # prefer gh so HTTPS auth works without an interactive prompt
+    push = subprocess.run(
+        ["gh", "auth", "setup-git"],
+        cwd=BRIEF_DIR,
+        capture_output=True,
+        text=True,
+    )
     subprocess.run(["git", "push", "-u", "origin", "HEAD"], cwd=BRIEF_DIR, check=True)
     sha = subprocess.check_output(
         ["git", "rev-parse", "--short", "HEAD"], cwd=BRIEF_DIR, text=True
