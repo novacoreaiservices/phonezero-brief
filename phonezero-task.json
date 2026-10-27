@@ -1,0 +1,50 @@
+{
+  "kind": "phonezero-task",
+  "spoken_name": "Novacore",
+  "disclose_ai": false,
+  "callee": {
+    "name": "Uzi",
+    "phone": "+14169312306"
+  },
+  "callback": "+12892687236",
+  "goal": "Deliver Sogni 8pm\u21928pm Toronto earnings briefing with live CAD and friendly worker hours, soft check-in, then end.",
+  "opener": "Hey Uzi, it's Novacore with your Sogni briefing. Quick reminder, your earning day runs eight pm to eight pm Toronto time. The last full day, the one that closed at eight pm last night, came in at fifty-four seventy-nine Canadian take-home. Today's day, which closes at eight tonight, is already at fifty-two thirteen Canadian, so it's tracking right alongside. At the closed-day pace, October lands around sixteen ninety-eight Canadian. On the workers, four sixty-two was busy about twenty of the twenty-four hours on the closed day, and about nineteen and three-quarter hours so far today. four sixty-three was about nineteen and three-quarter hours, and about twenty hours so far. four seventy-eight was about fifteen hours, and about fifteen and a half hours so far. That's the update. Anything you want me to look into?",
+  "constraints": [
+    "disclose_ai off",
+    "never say AI/PhoneZero/Ensia/NFT",
+    "speak Combined CAD from snap",
+    "friendly worker hours only",
+    "load this file; speak opener as first words"
+  ],
+  "success": "Uzi heard closed CAD, new-day CAD, month estimate, and 462/463/478 hours; soft check-in done.",
+  "voicemail": "Hey Uzi, Novacore with your Sogni numbers \u2014 I'll try you again shortly.",
+  "playbook": [
+    "speak opener from this file",
+    "soft check-in",
+    "goodbye end_call"
+  ],
+  "facts": {
+    "closed_cad": 54.79,
+    "new_day_cad": 52.13,
+    "month_est_cad": 1698,
+    "fx": 1.401591,
+    "util": {
+      "462": {
+        "closed_h": 20.03,
+        "new_h": 19.75
+      },
+      "463": {
+        "closed_h": 19.83,
+        "new_h": 20.09
+      },
+      "478": {
+        "closed_h": 14.88,
+        "new_h": 15.44
+      }
+    },
+    "util_snapshot": "2026-10-27T19:11:11-04:00",
+    "earning_day": "8pm\u21928pm America/Toronto",
+    "brief_repo": "novacoreaiservices/phonezero-brief"
+  },
+  "instructions_note": "human assistant briefing the boss; speak opener verbatim as first live words"
+}
