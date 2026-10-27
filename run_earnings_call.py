@@ -548,7 +548,11 @@ def upload_collection(task_path: Path) -> dict:
         "POST",
         f"{XAI_API}/collections/{FINANCIAL_COLLECTION}/documents/{file_id}",
         token=key,
-        body={"collection_id": FINANCIAL_COLLECTION, "file_id": file_id},
+        body={
+            "collection_id": FINANCIAL_COLLECTION,
+            "file_id": file_id,
+            "fields": {"kind": "phonezero-task"},
+        },
     )
     status = "unknown"
     for _ in range(40):
