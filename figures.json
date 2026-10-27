@@ -1,31 +1,31 @@
 {
-  "baked_at": "2026-10-27T19:41:36.506113-04:00",
+  "baked_at": "2026-10-27T19:55:34.759635-04:00",
   "earning_day": "8pm\u21928pm America/Toronto",
   "closed_day_cad": 54.79,
-  "new_day_cad": 52.13,
+  "new_day_cad": 54.49,
   "month_estimate_cad": 1698,
   "fx": 1.401591,
   "closed_usd": 39.09,
-  "new_usd": 37.19,
+  "new_usd": 38.88,
   "snap_day_label": "Oct 27",
   "snap_y_label": "Oct 26",
   "util_hours": {
     "462": {
       "closed_h": 20.03,
-      "new_h": 19.75
+      "new_h": 19.66
     },
     "463": {
       "closed_h": 19.83,
-      "new_h": 20.09
+      "new_h": 19.18
     },
     "478": {
       "closed_h": 14.88,
-      "new_h": 15.44
+      "new_h": 14.75
     }
   },
   "util_source": {
-    "closed": "2026-10-27T18:45:25.111167-04:00",
-    "new": "2026-10-27T19:11:11-04:00",
-    "note": "closed=GitHub yesterday_rendering_sec; new=Fleet workSecWorker when available"
+    "closed": "2026-10-27T19:45:26.268478-04:00",
+    "new": "2026-10-27T19:45:26.268478-04:00",
+    "note": "closed=GitHub yesterday_rendering_sec; new=GitHub today_rendering_sec (fleet snapshot not available in this VM)"
   }
 }
