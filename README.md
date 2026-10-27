@@ -37,3 +37,7 @@ Earning day: **8pm→8pm America/Toronto**. CAD SoT: `snap.json` take-home Combi
 ## Voice agent (stable Live)
 
 Welcome stays short / generic. Instructions tell the agent to `collections_search` `phonezero-task.json` and speak the `opener` field. Numbers change only via this repo + collection upload — never by republishing Live.
+
+## Telnyx dial / SMS
+
+Shell `TELNYX_API_KEY` on the bot computer is often missing or malformed. **Dial and SMS go through the Telnyx MCP connector** (`initiate_texml_calls` + `send_messages`), not curl with the env key. The runner's `--prep` always works for bake/push/upload; `--dial` preps and writes `last-dial-request.json` / `last-sms-request.json` for the connector.

@@ -486,10 +486,16 @@ def xai_key() -> str:
     return k
 
 
-def telnyx_key() -> str:
+def telnyx_key() -> str | None:
+    """Shell TELNYX_API_KEY is often missing/malformed on this box.
+    Dials/SMS must use the Telnyx MCP connector (user-telnyx), not this env key.
+    """
     k = os.environ.get("TELNYX_API_KEY")
     if not k:
-        raise SystemExit("missing TELNYX_API_KEY")
+        return None
+    # known-bad short KEY01… stubs
+    if len(k) < 40 or k.startswith("KEY01"):
+        return None
     return k
 
 
@@ -630,7 +636,7 @@ def main():
     ap = argparse.ArgumentParser(description="PhoneZero fast earnings brief runner")
     g = ap.add_mutually_exclusive_group(required=True)
     g.add_argument("--prep", action="store_true", help="bake + push + upload (no dial)")
-    g.add_argument("--dial", action="store_true", help="prep + dial + SMS")
+    g.add_argument("--dial", action="store_true", help="prep + write dial/SMS payloads; shell dial only if key usable, else Telnyx MCP")
     g.add_argument("--push-only", action="store_true", help="bake + git push only")
     ap.add_argument("--skip-upload", action="store_true")
     args = ap.parse_args()
@@ -665,18 +671,55 @@ def main():
         result["upload"] = up
 
     if args.dial:
-        call = dial()
-        result["call"] = call
-        # brief pause then SMS (call may still be ringing)
-        time.sleep(2)
-        sms = send_sms(opener)
-        result["sms"] = {
-            "id": (sms.get("data") or sms).get("id"),
-            "status": ((sms.get("data") or sms).get("to") or [{}])[0].get("status")
-            if isinstance((sms.get("data") or sms).get("to"), list)
-            else None,
+        # Prefer Telnyx MCP connector — shell env key is unreliable on this box.
+        key = telnyx_key()
+        dial_request = {
+            "application_id": TEXML_APP,
+            "From": FROM,
+            "To": TO,
+            "Url": OUTBOUND_XML,
+            "UrlMethod": "GET",
+            "Record": True,
         }
-        # optional: wait and list recording duration left to caller
+        sms_request = {
+            "from": FROM,
+            "to": TO,
+            "type": "SMS",
+            "text": "Novacore call transcript: " + opener.strip(),
+        }
+        (BUILDER / "last-dial-request.json").write_text(json.dumps(dial_request, indent=2) + "\n")
+        (BUILDER / "last-sms-request.json").write_text(json.dumps(sms_request, indent=2) + "\n")
+        (BRIEF_DIR / "last-dial-request.json").write_text(json.dumps(dial_request, indent=2) + "\n")
+        (BRIEF_DIR / "last-sms-request.json").write_text(json.dumps(sms_request, indent=2) + "\n")
+        result["opener"] = opener
+        result["dial_via"] = "telnyx_mcp"
+        result["dial_request"] = dial_request
+        result["sms_request"] = {"from": FROM, "to": TO, "type": "SMS", "chars": len(sms_request["text"])}
+        if key:
+            try:
+                call = dial()
+                result["call"] = call
+                time.sleep(2)
+                sms = send_sms(opener)
+                result["sms"] = {
+                    "id": (sms.get("data") or sms).get("id"),
+                    "status": ((sms.get("data") or sms).get("to") or [{}])[0].get("status")
+                    if isinstance((sms.get("data") or sms).get("to"), list)
+                    else None,
+                }
+                result["dial_via"] = "shell_telnyx_key"
+            except Exception as e:
+                result["shell_dial_error"] = str(e)
+                result["note"] = (
+                    "Prep OK. Shell Telnyx dial failed — parent must dial+SMS via Telnyx connector "
+                    "using last-dial-request.json / natural-greeting.txt."
+                )
+        else:
+            result["note"] = (
+                "Prep OK. No usable TELNYX_API_KEY in shell — parent must dial+SMS via "
+                "Telnyx connector (initiate_texml_calls + send_messages) using "
+                "last-dial-request.json and sms-transcript.txt / natural-greeting.txt."
+            )
 
     print(json.dumps(result, indent=2))
 
