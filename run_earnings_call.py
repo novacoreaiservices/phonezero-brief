@@ -13,7 +13,7 @@ import subprocess
 import sys
 import time
 import urllib.request
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -165,6 +165,34 @@ def worker_spoken(n: int) -> str:
     return f"{num_word(int(s[0]))} {num_word(int(s[1:]))}" if len(s) == 3 else num_word(n)
 
 
+
+def earning_day_start(n: datetime | None = None) -> datetime:
+    """Current 8pm→8pm Toronto window start (last 8pm at or before now)."""
+    n = n or now_et()
+    eight = n.replace(hour=20, minute=0, second=0, microsecond=0)
+    if n < eight:
+        eight = eight - timedelta(days=1)
+    return eight
+
+
+def parse_fleet_ts(raw) -> datetime | None:
+    if raw is None:
+        return None
+    if isinstance(raw, (int, float)):
+        return datetime.fromtimestamp(raw, tz=ZoneInfo("America/Toronto"))
+    s = str(raw).strip()
+    try:
+        if s.endswith("Z"):
+            dt = datetime.fromisoformat(s.replace("Z", "+00:00"))
+        else:
+            dt = datetime.fromisoformat(s)
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=ZoneInfo("America/Toronto"))
+        return dt.astimezone(ZoneInfo("America/Toronto"))
+    except Exception:
+        return None
+
+
 def fetch_snap() -> dict:
     return json.loads(http_get(SNAP_URL).decode())
 
@@ -226,13 +254,29 @@ def fetch_util_fleet() -> dict | None:
 
 
 def merge_util(gh: dict, fleet: dict | None) -> dict:
-    """Closed hours from GitHub yesterday; new-day from Fleet today when fresher."""
+    """Closed hours from GitHub yesterday; new-day from Fleet only if collect is in the current 8pm window."""
     out = {}
     gh_ts = gh.get("ts")
+    n = now_et()
+    day_start = earning_day_start(n)
+    elapsed_h = max((n - day_start).total_seconds() / 3600.0, 0.0)
     use_fleet_today = False
+    fleet_reason = "no-fleet"
     if fleet:
-        # prefer fleet today if present
-        use_fleet_today = True
+        fts = parse_fleet_ts(fleet.get("ts")) or parse_fleet_ts(fleet.get("path_mtime"))
+        if fts is None:
+            fleet_reason = "unparsed-fleet-ts"
+        elif fts < day_start:
+            # e.g. 7:58pm collect after 8pm close still holds prior-day workSec
+            fleet_reason = f"fleet-before-day-start ({fts.isoformat()} < {day_start.isoformat()})"
+        else:
+            # sanity: fleet hours cannot exceed elapsed window (+small slack)
+            sample = max((fleet["by_nft"].get(nft, {}).get("today_sec") or 0) for nft in WORKERS)
+            if sample / 3600.0 > elapsed_h + 0.35:
+                fleet_reason = f"fleet-hours-exceed-elapsed ({sample/3600:.2f}h > {elapsed_h:.2f}h)"
+            else:
+                use_fleet_today = True
+                fleet_reason = "fleet-ok"
     for nft in WORKERS:
         g = gh["by_nft"].get(nft, {})
         closed_h = (g.get("yesterday_sec") or 0) / 3600.0
@@ -252,7 +296,7 @@ def merge_util(gh: dict, fleet: dict | None) -> dict:
         "util": out,
         "gh_ts": gh_ts,
         "fleet_ts": (fleet or {}).get("ts"),
-        "note": "closed=GitHub yesterday_rendering_sec; new=Fleet workSecWorker when available",
+        "note": f"closed=GitHub yesterday_rendering_sec; new={'Fleet' if use_fleet_today else 'GitHub'} ({fleet_reason})",
     }
 
 
