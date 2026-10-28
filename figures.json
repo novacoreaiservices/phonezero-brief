@@ -1,31 +1,31 @@
 {
-  "baked_at": "2026-10-27T19:55:34.759635-04:00",
+  "baked_at": "2026-10-27T20:12:49.016599-04:00",
   "earning_day": "8pm\u21928pm America/Toronto",
-  "closed_day_cad": 54.79,
-  "new_day_cad": 54.49,
-  "month_estimate_cad": 1698,
+  "closed_day_cad": 54.94,
+  "new_day_cad": 0.14,
+  "month_estimate_cad": 1703,
   "fx": 1.401591,
-  "closed_usd": 39.09,
-  "new_usd": 38.88,
-  "snap_day_label": "Oct 27",
-  "snap_y_label": "Oct 26",
+  "closed_usd": 39.2,
+  "new_usd": 0.1,
+  "snap_day_label": "Oct 28",
+  "snap_y_label": "Oct 27",
   "util_hours": {
     "462": {
-      "closed_h": 20.03,
-      "new_h": 19.66
+      "closed_h": 19.78,
+      "new_h": 20.45
     },
     "463": {
-      "closed_h": 19.83,
-      "new_h": 19.18
+      "closed_h": 19.32,
+      "new_h": 20.86
     },
     "478": {
-      "closed_h": 14.88,
-      "new_h": 14.75
+      "closed_h": 14.93,
+      "new_h": 15.98
     }
   },
   "util_source": {
-    "closed": "2026-10-27T19:45:26.268478-04:00",
-    "new": "2026-10-27T19:45:26.268478-04:00",
-    "note": "closed=GitHub yesterday_rendering_sec; new=GitHub today_rendering_sec (fleet snapshot not available in this VM)"
+    "closed": "2026-10-27T20:09:03.366258-04:00",
+    "new": "2026-10-27T19:58:56-04:00",
+    "note": "closed=GitHub yesterday_rendering_sec; new=Fleet workSecWorker when available"
   }
 }
