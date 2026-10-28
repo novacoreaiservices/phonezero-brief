@@ -8,7 +8,7 @@
   },
   "callback": "+12892687236",
   "goal": "Deliver Sogni 8pm\u21928pm Toronto earnings briefing with live CAD and friendly worker hours, soft check-in, then end.",
-  "opener": "Hey Uzi, it's Novacore with your Sogni briefing. Quick reminder, your earning day runs eight pm to eight pm Toronto time. The last full day, the one that closed at eight pm last night, came in at fifty-four ninety-four Canadian take-home. In the new day since eight pm, you're at zero fourteen Canadian so far. At the closed-day pace, October lands around sixteen three Canadian. On the workers, four sixty-two was busy about nineteen and three-quarter of the twenty-four hours on the closed day, and about twenty and a half hours so far today. four sixty-three was about nineteen and a quarter hours, and about twenty and three-quarter hours so far. four seventy-eight was about fifteen hours, and about sixteen hours so far. That's the update. Anything you want me to look into?",
+  "opener": "Hey Uzi, it's Novacore with your Sogni briefing. Quick reminder, your earning day runs eight pm to eight pm Toronto time. The last full day, the one that closed at eight pm last night, came in at fifty-four ninety-four Canadian take-home. In the new day since eight pm, you're at zero fourteen Canadian so far. At the closed-day pace, October lands around sixteen three Canadian. On the workers, four sixty-two was busy about nineteen and three-quarter of the twenty-four hours on the closed day, and a few minutes so far today. four sixty-three was about nineteen and a quarter hours, and a few minutes so far. four seventy-eight was about fifteen hours, and a few minutes so far. That's the update. Anything you want me to look into?",
   "constraints": [
     "disclose_ai off",
     "never say AI/PhoneZero/Ensia/NFT",
@@ -31,15 +31,15 @@
     "util": {
       "462": {
         "closed_h": 19.78,
-        "new_h": 20.45
+        "new_h": 0.2
       },
       "463": {
         "closed_h": 19.32,
-        "new_h": 20.86
+        "new_h": 0.07
       },
       "478": {
         "closed_h": 14.93,
-        "new_h": 15.98
+        "new_h": 0.1
       }
     },
     "util_snapshot": "2026-10-27T19:58:56-04:00",
