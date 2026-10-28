@@ -555,7 +555,14 @@ def upload_collection(task_path: Path) -> dict:
     for d in docs:
         name = d.get("file_name") or d.get("name") or d.get("filename") or ""
         fid = d.get("file_id") or d.get("id") or ""
-        if fid and ("phonezero-task" in name or name == "phonezero-task.json"):
+        stale_names = (
+            "phonezero-task",
+            "natural-greeting",
+            "briefing-transcript",
+            "sms-transcript",
+            "figures.json",
+        )
+        if fid and any(s in name.lower() for s in stale_names):
             for url in (
                 f"{XAI_API}/collections/{FINANCIAL_COLLECTION}/documents/{fid}",
                 f"{XAI_API}/files/{fid}",
