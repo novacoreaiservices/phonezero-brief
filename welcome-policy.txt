@@ -1,0 +1,2 @@
+Publish natural-greeting.txt (full opener) as Live Welcome on every --prep/--dial so the call opens mid-briefing.
+Fallback short Welcome only if console publish fails: "Hey Uzi, it's Novacore with your Sogni briefing."

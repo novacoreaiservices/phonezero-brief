@@ -91,7 +91,13 @@ def money_words(cad: float) -> str:
 
     if 1000 <= dollars < 2000:
         # Match prior PhoneZero month phrasing: sixteen ninety-eight
-        left = f"sixteen {under100(dollars % 100)}"
+        hi, lo = divmod(dollars, 100)
+        if lo == 0:
+            left = f"{ones[hi]} hundred"
+        elif lo < 10:
+            left = f"{ones[hi]} oh {ones[lo]}"
+        else:
+            left = f"{ones[hi]} {under100(lo)}"
     elif dollars >= 2000:
         th, rest = divmod(dollars, 1000)
         left = under100(th) + " thousand" + (f" {under1000(rest)}" if rest else "")
@@ -332,8 +338,8 @@ def build_opener(cad: dict, util: dict) -> str:
     # month often "sixteen ninety-eight Canadian" without cents — money_words handles
     parts = [
         "Hey Uzi, it's Novacore with your Sogni briefing.",
-        "Quick reminder, your earning day runs eight pm to eight pm Toronto time.",
-        f"The last full day, the one that closed at eight pm last night, came in at {c} take-home.",
+        "Your earning day runs eight pm to eight pm Toronto time.",
+        f"The day that closed at eight pm came in at {c} take-home.",
         f"Today's day, which closes at eight tonight, is already at {n}, so it's tracking right alongside."
         if cad["new_cad"] >= 5
         else f"In the new day since eight pm, you're at {n} so far.",
@@ -374,10 +380,11 @@ def build_opener(cad: dict, util: dict) -> str:
                 f"{name} was {hours_phrase(u['closed_h'], of_day=False)}, "
                 f"and {hours_phrase(u['new_h'], of_day=False)} so far."
             )
+    # Full opener is also published as Live Welcome so the call starts mid-briefing (assistant→boss).
     body = [
         "Hey Uzi, it's Novacore with your Sogni briefing.",
-        "Quick reminder, your earning day runs eight pm to eight pm Toronto time.",
-        f"The last full day, the one that closed at eight pm last night, came in at {c} take-home.",
+        "Your earning day runs eight pm to eight pm Toronto time.",
+        f"The day that closed at eight pm came in at {c} take-home.",
     ]
     if cad["new_cad"] >= 5:
         body.append(
