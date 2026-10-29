@@ -37,7 +37,7 @@ TELNYX_API = "https://api.telnyx.com/v2"
 
 
 def now_et() -> datetime:
-    return datetime.now(ET)
+    return _NOW_OVERRIDE or datetime.now(ET)
 
 
 def http_get(url: str, timeout: int = 30) -> bytes:
@@ -106,6 +106,8 @@ def money_words(cad: float) -> str:
 
     if cents == 0:
         return f"{left} Canadian"
+    if cents < 10:
+        return f"{left} oh {ones[cents]} Canadian"
     return f"{left} {under100(cents)} Canadian"
 
 
@@ -306,18 +308,108 @@ def merge_util(gh: dict, fleet: dict | None) -> dict:
     }
 
 
-def cad_from_snap(snap: dict) -> dict:
-    fx = float(snap["fx"])
-    closed_usd = float(snap["yUsd"])
-    new_usd = float(snap["dayUsd"])
-    closed_cad = round(closed_usd * fx, 2)
-    new_cad = round(new_usd * fx, 2)
-    # days in current month (Toronto)
-    n = now_et()
+CLOSED_DAYS_JSON = Path("/workspace/sogni-hourly-earnings/state/closed_days.json")
+FORECAST_MD_LOCAL = Path("/workspace/sogni-hourly-earnings/sogni-monthly-income-forecast.md")
+FORECAST_MD_URL = (
+    "https://raw.githubusercontent.com/novacoreaiservices/sogni-income-history/main/"
+    "sogni-monthly-income-forecast.md"
+)
+_NOW_OVERRIDE: datetime | None = None  # set by --now for dry-run proofs
+
+
+def _label(dt: datetime) -> str:
+    return f"{dt:%b} {dt.day}"  # 'Oct 28' (snap label style)
+
+
+def expected_closed_window(n: datetime | None = None) -> tuple[datetime, datetime]:
+    """The just-ended earning day: [last 8pm - 24h, last 8pm]. Labelled by its END date."""
+    end = earning_day_start(n)
+    return end - timedelta(days=1), end
+
+
+def closed_from_collector(end: datetime) -> dict | None:
+    """Fleet collector freeze (~8:13pm ET) in closed_days.json windows[] keyed by start UTC.
+    Match on end_toronto == the most recent 8pm; only return if frozen_at_utc is set."""
+    try:
+        d = json.loads(CLOSED_DAYS_JSON.read_text())
+    except Exception:
+        return None
+    for key, w in (d.get("windows") or {}).items():
+        we = parse_fleet_ts(w.get("end_toronto"))
+        if we is None or abs((we - end).total_seconds()) > 60 or not w.get("frozen_at_utc"):
+            continue
+        totals = {int(k): float(v) for k, v in (w.get("totals") or {}).items()}
+        return {
+            "usd": round(sum(totals.values()), 2),
+            "by_worker_usd": {k: round(v, 2) for k, v in totals.items()},
+            "fx": float(w.get("fx") or 0) or None,
+            "frozen_at_utc": w["frozen_at_utc"],
+            "window_key": key,
+        }
+    return None
+
+
+def outage_aware_month() -> dict | None:
+    """Parse 'Outage-aware forecast (preferred): ... ≈ **$912.74 (CA$1,281.54)**' from forecast md.
+    Local collector copy first (fresher), then GitHub raw."""
+    import re
+
+    pat = re.compile(r"Outage-aware forecast[^\n]*?\$([\d,]+\.\d+)\s*\(CA\$([\d,]+\.\d+)\)", re.I)
+    srcs = []
+    if FORECAST_MD_LOCAL.exists():
+        srcs.append((str(FORECAST_MD_LOCAL), lambda: FORECAST_MD_LOCAL.read_text()))
+    srcs.append((FORECAST_MD_URL, lambda: http_get(FORECAST_MD_URL).decode()))
+    for name, get in srcs:
+        try:
+            m = pat.search(get())
+        except Exception:
+            continue
+        if m:
+            return {
+                "usd": float(m.group(1).replace(",", "")),
+                "cad": float(m.group(2).replace(",", "")),
+                "source": name,
+            }
+    return None
+
+
+def cad_from_snap(snap: dict, n: datetime | None = None) -> dict:
+    """Closed day = the window ending at the most recent 8pm ET (newly frozen day).
+    Priority: (1) collector closed_days.json window frozen for that end; (2) snap yUsd only if
+    snap.yLabel == that end date; else STALE (closed_stale=True, dial refused)."""
     import calendar
 
+    n = n or now_et()
+    start, end = expected_closed_window(n)
+    want_y = _label(end)
+    want_day = _label(end + timedelta(days=1))
+    snap_fx = float(snap["fx"])
+    snap_fresh = snap.get("yLabel") == want_y
+    coll = closed_from_collector(end)
+    fx = snap_fx
+    if coll:
+        closed_usd, closed_src = coll["usd"], f"closed_days.json {coll['window_key']} frozen {coll['frozen_at_utc']}"
+        by_worker = coll["by_worker_usd"]
+    elif snap_fresh:
+        closed_usd, closed_src, by_worker = float(snap["yUsd"]), f"snap yLabel={want_y}", None
+    else:
+        closed_usd, closed_src, by_worker = float(snap["yUsd"]), f"STALE snap yLabel={snap.get('yLabel')} != {want_y}", None
+    closed_stale = not coll and not snap_fresh
+    # New day: snap dayUsd only if snap already rotated to the new window; pre-rotation dayUsd is the
+    # just-closed day, so don't speak it as "new".
+    if snap.get("dayLabel") == want_day:
+        new_usd, new_src = float(snap["dayUsd"]), "snap dayUsd"
+    else:
+        new_usd, new_src = 0.0, f"snap not rotated (dayLabel={snap.get('dayLabel')} != {want_day}); new day ~0"
+    closed_cad = round(closed_usd * fx, 2)
+    new_cad = round(new_usd * fx, 2)
     days = calendar.monthrange(n.year, n.month)[1]
-    month = round(closed_cad * days)
+    raw_pace_month = round(closed_cad * days)
+    oa = outage_aware_month()
+    if oa:
+        month, month_basis = round(oa["cad"]), f"outage-aware ({oa['source']})"
+    else:
+        month, month_basis = raw_pace_month, "raw closed-day pace × days (outage-aware unavailable)"
     return {
         "fx": fx,
         "closed_usd": closed_usd,
@@ -325,6 +417,14 @@ def cad_from_snap(snap: dict) -> dict:
         "closed_cad": closed_cad,
         "new_cad": new_cad,
         "month_est_cad": month,
+        "month_basis": month_basis,
+        "month_outage_aware": oa,
+        "month_raw_pace_cad": raw_pace_month,
+        "closed_window": {"start": start.isoformat(), "end": end.isoformat(), "label": want_y},
+        "closed_source": closed_src,
+        "closed_by_worker_usd": by_worker,
+        "closed_stale": closed_stale,
+        "new_source": new_src,
         "dayLabel": snap.get("dayLabel"),
         "yLabel": snap.get("yLabel"),
         "days_in_month": days,
@@ -393,7 +493,10 @@ def build_opener(cad: dict, util: dict) -> str:
     else:
         body.append(f"In the new day since eight pm, you're at {n} so far.")
     month_name = now_et().strftime("%B")
-    body.append(f"At the closed-day pace, {month_name} lands around {m}.")
+    if cad.get("month_outage_aware"):
+        body.append(f"Counting the early-month outage, {month_name} is on track for about {m}.")
+    else:
+        body.append(f"At the closed-day pace, {month_name} lands around {m}.")
     body.append("On the workers, " + wlines[0])
     body.extend(wlines[1:])
     body.append("That's the update. Anything you want me to look into?")
@@ -415,6 +518,12 @@ def write_brief(cad: dict, util: dict, opener: str) -> dict:
         "closed_day_cad": cad["closed_cad"],
         "new_day_cad": cad["new_cad"],
         "month_estimate_cad": cad["month_est_cad"],
+        "month_basis": cad["month_basis"],
+        "month_raw_pace_cad": cad["month_raw_pace_cad"],
+        "closed_window": cad["closed_window"],
+        "closed_source": cad["closed_source"],
+        "closed_by_worker_usd": cad["closed_by_worker_usd"],
+        "new_source": cad["new_source"],
         "fx": cad["fx"],
         "closed_usd": cad["closed_usd"],
         "new_usd": cad["new_usd"],
@@ -515,6 +624,11 @@ def git_push_brief(message: str) -> str:
     )
     if not st.stdout.strip():
         return "clean"
+    # Muse pushes hourly to the same repo; sync to remote tip first, keep our fresh files
+    subprocess.run(["gh", "auth", "setup-git"], cwd=BRIEF_DIR, check=False)
+    subprocess.run(["git", "fetch", "origin", "main"], cwd=BRIEF_DIR, check=False)
+    subprocess.run(["git", "reset", "--soft", "origin/main"], cwd=BRIEF_DIR, check=False)
+    subprocess.run(["git", "add", "-A"], cwd=BRIEF_DIR, check=True)
     subprocess.run(["git", "commit", "-m", message], cwd=BRIEF_DIR, check=True)
     # prefer gh so HTTPS auth works without an interactive prompt
     push = subprocess.run(
@@ -696,11 +810,27 @@ def main():
     g.add_argument("--prep", action="store_true", help="bake + push + upload (no dial)")
     g.add_argument("--dial", action="store_true", help="prep + write dial/SMS payloads; shell dial only if key usable, else Telnyx MCP")
     g.add_argument("--push-only", action="store_true", help="bake + git push only")
+    g.add_argument("--dry-run", action="store_true", help="compute figures+opener only; no writes/push/upload/dial")
     ap.add_argument("--skip-upload", action="store_true")
+    ap.add_argument("--now", help="ISO Toronto time override (dry-run proofs), e.g. 2026-10-28T20:23")
+    ap.add_argument("--snap-file", help="use a local snap.json instead of GitHub (dry-run proofs)")
     args = ap.parse_args()
+    global _NOW_OVERRIDE
+    if args.now:
+        _NOW_OVERRIDE = datetime.fromisoformat(args.now).replace(tzinfo=ET)
 
-    snap = fetch_snap()
+    snap = json.loads(Path(args.snap_file).read_text()) if args.snap_file else fetch_snap()
     cad = cad_from_snap(snap)
+    if args.dry_run:
+        print(json.dumps({"now": now_et().isoformat(), **{k: v for k, v in cad.items()},
+                          "opener_money": [money_words(cad["closed_cad"]), money_words(float(cad["month_est_cad"]))]}, indent=2))
+        return
+    # Stale guard: never bake/dial a closed day that is not the just-ended 8pm→8pm window.
+    if cad["closed_stale"]:
+        print(json.dumps({"error": "stale-closed-day", "detail": cad["closed_source"],
+                          "expected_window": cad["closed_window"],
+                          "hint": "collector freeze (~8:13pm ET) not found and snap not rotated; retry in a few minutes"}), file=sys.stderr)
+        sys.exit(3)
     gh = fetch_util_github()
     fleet = fetch_util_fleet()
     util = merge_util(gh, fleet)
@@ -729,6 +859,10 @@ def main():
         result["upload"] = up
 
     if args.dial:
+        # Re-verify the brief on disk carries the just-ended window before handing off a dial.
+        bf = json.loads((BRIEF_DIR / "figures.json").read_text())
+        if (bf.get("closed_window") or {}).get("end") != cad["closed_window"]["end"]:
+            raise SystemExit("stale brief: figures.json closed_window != just-ended day; not dialing")
         # Prefer Telnyx MCP connector — shell env key is unreliable on this box.
         key = telnyx_key()
         dial_request = {
