@@ -62,7 +62,7 @@ def http_json(method: str, url: str, *, token: str, body: dict | None = None, fo
 
 
 def money_words(cad: float) -> str:
-    """Everyday CAD: fifty-four seventy-nine Canadian; month ~ sixteen ninety-eight Canadian."""
+    """Natural CAD speech: 55.37 -> fifty-five dollars and thirty-seven cents; 0.32 -> thirty-two cents."""
     dollars = int(cad)
     cents = int(round((cad - dollars) * 100))
     if cents == 100:
@@ -87,28 +87,27 @@ def money_words(cad: float) -> str:
         h, rest = divmod(n, 100)
         if rest == 0:
             return f"{ones[h]} hundred"
-        return f"{ones[h]} hundred {under100(rest)}"
+        return f"{ones[h]} hundred and {under100(rest)}"
 
-    if 1000 <= dollars < 2000:
-        # Match prior PhoneZero month phrasing: sixteen ninety-eight
+    if 1100 <= dollars < 2000 and dollars % 1000 >= 100:
+        # Human Canadian phone style: "twelve hundred and eighty-two"
         hi, lo = divmod(dollars, 100)
-        if lo == 0:
-            left = f"{ones[hi]} hundred"
-        elif lo < 10:
-            left = f"{ones[hi]} oh {ones[lo]}"
-        else:
-            left = f"{ones[hi]} {under100(lo)}"
-    elif dollars >= 2000:
+        left = f"{ones[hi]} hundred" + (f" and {under100(lo)}" if lo else "")
+    elif dollars >= 1000:
         th, rest = divmod(dollars, 1000)
-        left = under100(th) + " thousand" + (f" {under1000(rest)}" if rest else "")
+        left = under1000(th) + " thousand"
+        if rest:
+            left += (" and " if rest < 100 else " ") + under1000(rest)
     else:
         left = under1000(dollars)
 
+    d_unit = "dollar" if dollars == 1 else "dollars"
+    c_unit = "cent" if cents == 1 else "cents"
+    if dollars == 0 and cents:
+        return f"{under100(cents)} {c_unit}"
     if cents == 0:
-        return f"{left} Canadian"
-    if cents < 10:
-        return f"{left} oh {ones[cents]} Canadian"
-    return f"{left} {under100(cents)} Canadian"
+        return f"{left} {d_unit}"
+    return f"{left} {d_unit} and {under100(cents)} {c_unit}"
 
 
 def hours_phrase(hours: float, *, of_day: bool) -> str:
@@ -148,7 +147,7 @@ def hours_phrase(hours: float, *, of_day: bool) -> str:
         if abs(frac - 0.5) < 0.01:
             return f"about {num_word(whole)} and a half of the twenty-four hours"
         if abs(frac - 0.75) < 0.01:
-            return f"about {num_word(whole)} and three-quarter of the twenty-four hours"
+            return f"about {num_word(whole)} and three quarters of the twenty-four hours"
         if abs(frac - 0.25) < 0.01:
             return f"about {num_word(whole)} and a quarter of the twenty-four hours"
     return core
@@ -435,7 +434,7 @@ def build_opener(cad: dict, util: dict) -> str:
     c = money_words(cad["closed_cad"])
     n = money_words(cad["new_cad"])
     m = money_words(float(cad["month_est_cad"]))
-    # month often "sixteen ninety-eight Canadian" without cents — money_words handles
+    # month whole dollars -> "about thirteen hundred and one dollars"
     parts = [
         "Hey Uzi, it's Novacore with your Sogni briefing.",
         "Your earning day runs eight pm to eight pm Toronto time.",
@@ -483,20 +482,18 @@ def build_opener(cad: dict, util: dict) -> str:
     # Full opener is also published as Live Welcome so the call starts mid-briefing (assistant→boss).
     body = [
         "Hey Uzi, it's Novacore with your Sogni briefing.",
-        "Your earning day runs eight pm to eight pm Toronto time.",
-        f"The day that closed at eight pm came in at {c} take-home.",
+        "Your earning day still runs eight to eight, Toronto time.",
+        f"The day that just closed came in at {c} take-home, Canadian.",
     ]
     if cad["new_cad"] >= 5:
-        body.append(
-            f"Today's day, which closes at eight tonight, is already at {n}, so it's tracking right alongside."
-        )
+        body.append(f"Since eight, you're already at {n}, so it's tracking right alongside.")
     else:
-        body.append(f"In the new day since eight pm, you're at {n} so far.")
+        body.append(f"Since eight, you're only at {n} so far.")
     month_name = now_et().strftime("%B")
     if cad.get("month_outage_aware"):
         body.append(f"Counting the early-month outage, {month_name} is on track for about {m}.")
     else:
-        body.append(f"At the closed-day pace, {month_name} lands around {m}.")
+        body.append(f"At the closed-day pace, {month_name} is looking like about {m}.")
     body.append("On the workers, " + wlines[0])
     body.extend(wlines[1:])
     body.append("That's the update. Anything you want me to look into?")
@@ -823,7 +820,13 @@ def main():
     cad = cad_from_snap(snap)
     if args.dry_run:
         print(json.dumps({"now": now_et().isoformat(), **{k: v for k, v in cad.items()},
-                          "opener_money": [money_words(cad["closed_cad"]), money_words(float(cad["month_est_cad"]))]}, indent=2))
+                          "opener_money": {"closed": money_words(cad["closed_cad"]),
+                                           "new": money_words(cad["new_cad"]),
+                                           "month": "about " + money_words(float(cad["month_est_cad"]))}}, indent=2))
+        try:  # read-only preview of the spoken opener (no writes/push/dial)
+            print("greeting_preview:", build_opener(cad, merge_util(fetch_util_github(), fetch_util_fleet())))
+        except Exception as e:
+            print("greeting_preview unavailable:", e)
         return
     # Stale guard: never bake/dial a closed day that is not the just-ended 8pm→8pm window.
     if cad["closed_stale"]:
