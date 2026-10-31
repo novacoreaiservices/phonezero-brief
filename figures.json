@@ -1,31 +1,41 @@
 {
-  "baked_at": "2026-10-30T19:55:36.698272-04:00",
+  "baked_at": "2026-10-30T20:11:43.011642-04:00",
   "earning_day": "8pm\u21928pm America/Toronto",
   "closed_day_cad": 52.82,
-  "new_day_cad": 49.69,
-  "month_estimate_cad": 1637,
+  "new_day_cad": 0.25,
+  "month_estimate_cad": 1291,
+  "month_basis": "outage-aware (/workspace/sogni-hourly-earnings/sogni-monthly-income-forecast.md)",
+  "month_raw_pace_cad": 1637,
+  "closed_window": {
+    "start": "2026-10-29T20:00:00-04:00",
+    "end": "2026-10-30T20:00:00-04:00",
+    "label": "Oct 30"
+  },
+  "closed_source": "snap yLabel=Oct 30",
+  "closed_by_worker_usd": null,
+  "new_source": "snap dayUsd",
   "fx": 1.398868,
   "closed_usd": 37.76,
-  "new_usd": 35.52,
-  "snap_day_label": "Oct 30",
-  "snap_y_label": "Oct 29",
+  "new_usd": 0.18,
+  "snap_day_label": "Oct 31",
+  "snap_y_label": "Oct 30",
   "util_hours": {
     "462": {
-      "closed_h": 19.61,
-      "new_h": 19.02
+      "closed_h": 19.25,
+      "new_h": 0.04
     },
     "463": {
-      "closed_h": 19.25,
-      "new_h": 17.27
+      "closed_h": 17.27,
+      "new_h": 0.3
     },
     "478": {
-      "closed_h": 13.01,
-      "new_h": 11.22
+      "closed_h": 11.35,
+      "new_h": 0.07
     }
   },
   "util_source": {
-    "closed": "2026-10-30T19:45:57.764197-04:00",
-    "new": "2026-10-30T19:45:57.764197-04:00",
-    "note": "closed=GitHub yesterday_rendering_sec; new=GitHub today_rendering_sec (fleet snapshot not available in this VM)"
+    "closed": "2026-10-30T20:05:51.137561-04:00",
+    "new": "2026-10-30T20:04:39-04:00",
+    "note": "closed=GitHub yesterday_rendering_sec; new=Fleet (fleet-ok)"
   }
 }
