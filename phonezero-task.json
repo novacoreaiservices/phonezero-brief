@@ -8,7 +8,7 @@
   },
   "callback": "+12892687236",
   "goal": "Deliver Sogni 8pm\u21928pm Toronto earnings briefing with live CAD and friendly worker hours, soft check-in, then end.",
-  "opener": "Hey Uzi, it's Novacore with your Sogni briefing. Quick reminder, your earning day runs eight pm to eight pm Toronto time. The last full day, the one that closed at eight pm last night, came in at twenty-five seventy-seven Canadian take-home. Today's day, which closes at eight tonight, is already at eleven sixty-two Canadian, so it's tracking right alongside. At the closed-day pace, November lands around seven hundred seventy-three Canadian. On the workers, four sixty-two was busy about nineteen of the twenty-four hours on the closed day, and about eight and a quarter hours so far today. four sixty-three was about eighteen hours, and about seven and a quarter hours so far. four seventy-eight was about ten and three-quarter hours, and about four hours so far. That's the update. Anything you want me to look into?",
+  "opener": "Hey Uzi, it's Novacore with your Sogni briefing. Quick reminder, your earning day runs eight pm to eight pm Toronto time. The last full day, the one that closed at eight pm last night, came in at twenty-five seventy-seven Canadian take-home. Today's day, which closes at eight tonight, is already at thirteen seventy-three Canadian, so it's tracking right alongside. At the closed-day pace, November lands around seven hundred seventy-three Canadian. On the workers, four sixty-two was busy about nineteen of the twenty-four hours on the closed day, and about nine hours so far today. four sixty-three was about eighteen hours, and about eight hours so far. four seventy-eight was about ten and three-quarter hours, and about four and a quarter hours so far. That's the update. Anything you want me to look into?",
   "constraints": [
     "disclose_ai off",
     "never say AI/PhoneZero/Ensia/NFT",
@@ -25,24 +25,24 @@
   ],
   "facts": {
     "closed_cad": 25.77,
-    "new_day_cad": 11.62,
+    "new_day_cad": 13.73,
     "month_est_cad": 773,
     "fx": 1.396255,
     "util": {
       "462": {
         "closed_h": 18.88,
-        "new_h": 8.2
+        "new_h": 8.92
       },
       "463": {
         "closed_h": 17.99,
-        "new_h": 7.23
+        "new_h": 8.0
       },
       "478": {
         "closed_h": 10.63,
-        "new_h": 4.03
+        "new_h": 4.32
       }
     },
-    "util_snapshot": "2026-11-01T05:44:52.139809-05:00",
+    "util_snapshot": "2026-11-01T06:44:26.120481-05:00",
     "earning_day": "8pm\u21928pm America/Toronto",
     "brief_repo": "novacoreaiservices/phonezero-brief"
   },
