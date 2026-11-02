@@ -182,6 +182,18 @@ def earning_day_start(n: datetime | None = None) -> datetime:
     return eight
 
 
+def upstream_rebase_factor(n: datetime | None = None) -> tuple[float, str]:
+    """Sogni/Fleet/CSV 'today' resets at 00:00 UTC (= 8pm EDT, but 7pm EST in winter).
+    When UTC midnight precedes our 8pm Toronto start, pro-rate upstream 'today' to our window."""
+    n = n or now_et()
+    ds = earning_day_start(n)
+    utc_mid = n.astimezone(ZoneInfo("UTC")).replace(hour=0, minute=0, second=0, microsecond=0).astimezone(ZoneInfo("America/Toronto"))
+    if utc_mid >= ds or n <= utc_mid:
+        return 1.0, "no-rebase"
+    f = max(0.0, min(1.0, (n - ds).total_seconds() / (n - utc_mid).total_seconds()))
+    return f, f"prorated x{f:.2f} (upstream day starts {utc_mid.strftime('%-I:%M%p')} Toronto = 00:00 UTC)"
+
+
 def parse_fleet_ts(raw) -> datetime | None:
     if raw is None:
         return None
@@ -269,6 +281,7 @@ def merge_util(gh: dict, fleet: dict | None) -> dict:
     elapsed_h = max((n - day_start).total_seconds() / 3600.0, 0.0)
     use_fleet_today = False
     fleet_reason = "no-fleet"
+    rb, rb_note = upstream_rebase_factor(n)
     if fleet:
         fts = parse_fleet_ts(fleet.get("ts")) or parse_fleet_ts(fleet.get("path_mtime"))
         if fts is None:
@@ -279,7 +292,7 @@ def merge_util(gh: dict, fleet: dict | None) -> dict:
         else:
             # sanity: fleet hours cannot exceed elapsed window (+small slack)
             sample = max((fleet["by_nft"].get(nft, {}).get("today_sec") or 0) for nft in WORKERS)
-            if sample / 3600.0 > elapsed_h + 0.35:
+            if sample * rb / 3600.0 > elapsed_h + 0.35:
                 fleet_reason = f"fleet-hours-exceed-elapsed ({sample/3600:.2f}h > {elapsed_h:.2f}h)"
             else:
                 use_fleet_today = True
@@ -293,6 +306,7 @@ def merge_util(gh: dict, fleet: dict | None) -> dict:
         else:
             new_h = (g.get("today_sec") or 0) / 3600.0
             new_src = gh["source"]
+        new_h = min(new_h * rb, elapsed_h)
         out[nft] = {
             "closed_h": round(closed_h, 2),
             "new_h": round(new_h, 2),
@@ -303,7 +317,7 @@ def merge_util(gh: dict, fleet: dict | None) -> dict:
         "util": out,
         "gh_ts": gh_ts,
         "fleet_ts": (fleet or {}).get("ts"),
-        "note": f"closed=GitHub yesterday_rendering_sec; new={'Fleet' if use_fleet_today else 'GitHub'} ({fleet_reason})",
+        "note": f"closed=GitHub yesterday_rendering_sec; new={'Fleet' if use_fleet_today else 'GitHub'} ({fleet_reason}); {rb_note}",
     }
 
 
@@ -397,7 +411,8 @@ def cad_from_snap(snap: dict, n: datetime | None = None) -> dict:
     # New day: snap dayUsd only if snap already rotated to the new window; pre-rotation dayUsd is the
     # just-closed day, so don't speak it as "new".
     if snap.get("dayLabel") == want_day:
-        new_usd, new_src = float(snap["dayUsd"]), "snap dayUsd"
+        rb, rb_note = upstream_rebase_factor(n)
+        new_usd, new_src = round(float(snap["dayUsd"]) * rb, 2), f"snap dayUsd {rb_note}"
     else:
         new_usd, new_src = 0.0, f"snap not rotated (dayLabel={snap.get('dayLabel')} != {want_day}); new day ~0"
     closed_cad = round(closed_usd * fx, 2)
