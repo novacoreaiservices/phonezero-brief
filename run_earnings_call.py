@@ -62,52 +62,8 @@ def http_json(method: str, url: str, *, token: str, body: dict | None = None, fo
 
 
 def money_words(cad: float) -> str:
-    """Natural CAD speech: 55.37 -> fifty-five dollars and thirty-seven cents; 0.32 -> thirty-two cents."""
-    dollars = int(cad)
-    cents = int(round((cad - dollars) * 100))
-    if cents == 100:
-        dollars += 1
-        cents = 0
-    ones = [
-        "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
-        "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen",
-        "seventeen", "eighteen", "nineteen",
-    ]
-    tens = ["", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"]
-
-    def under100(n: int) -> str:
-        if n < 20:
-            return ones[n]
-        t, o = divmod(n, 10)
-        return tens[t] if o == 0 else f"{tens[t]}-{ones[o]}"
-
-    def under1000(n: int) -> str:
-        if n < 100:
-            return under100(n)
-        h, rest = divmod(n, 100)
-        if rest == 0:
-            return f"{ones[h]} hundred"
-        return f"{ones[h]} hundred and {under100(rest)}"
-
-    if 1100 <= dollars < 2000 and dollars % 1000 >= 100:
-        # Human Canadian phone style: "twelve hundred and eighty-two"
-        hi, lo = divmod(dollars, 100)
-        left = f"{ones[hi]} hundred" + (f" and {under100(lo)}" if lo else "")
-    elif dollars >= 1000:
-        th, rest = divmod(dollars, 1000)
-        left = under1000(th) + " thousand"
-        if rest:
-            left += (" and " if rest < 100 else " ") + under1000(rest)
-    else:
-        left = under1000(dollars)
-
-    d_unit = "dollar" if dollars == 1 else "dollars"
-    c_unit = "cent" if cents == 1 else "cents"
-    if dollars == 0 and cents:
-        return f"{under100(cents)} {c_unit}"
-    if cents == 0:
-        return f"{left} {d_unit}"
-    return f"{left} {d_unit} and {under100(cents)} {c_unit}"
+    """Compact CAD for voice/SMS: 55.37 -> $55.37; 0.32 -> $0.32; 1291 -> $1,291.00."""
+    return f"${float(cad):,.2f}"
 
 
 def hours_phrase(hours: float, *, of_day: bool) -> str:
