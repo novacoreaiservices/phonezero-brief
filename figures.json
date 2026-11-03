@@ -1,8 +1,8 @@
 {
-  "baked_at": "2026-11-02T20:08:54.599749-05:00",
+  "baked_at": "2026-11-02T20:24:12.332875-05:00",
   "earning_day": "8pm\u21928pm America/Toronto",
   "closed_day_cad": 32.67,
-  "new_day_cad": 0.17,
+  "new_day_cad": 0.38,
   "month_estimate_cad": 980,
   "month_basis": "raw closed-day pace \u00d7 days (outage-aware unavailable)",
   "month_raw_pace_cad": 980,
@@ -13,29 +13,29 @@
   },
   "closed_source": "snap yLabel=Nov 2",
   "closed_by_worker_usd": null,
-  "new_source": "snap dayUsd prorated x0.13 (upstream day starts 7:00PM Toronto = 00:00 UTC)",
+  "new_source": "snap dayUsd prorated x0.29 (upstream day starts 7:00PM Toronto = 00:00 UTC)",
   "fx": 1.39809,
   "closed_usd": 23.37,
-  "new_usd": 0.12,
+  "new_usd": 0.27,
   "snap_day_label": "Nov 3",
   "snap_y_label": "Nov 2",
   "util_hours": {
     "462": {
       "closed_h": 20.29,
-      "new_h": 0.11
+      "new_h": 0.26
     },
     "463": {
       "closed_h": 19.76,
-      "new_h": 0.11
+      "new_h": 0.24
     },
     "478": {
       "closed_h": 12.61,
-      "new_h": 0.03
+      "new_h": 0.06
     }
   },
   "util_source": {
     "closed": "2026-11-02T20:06:03.216905-05:00",
     "new": "2026-11-02T20:02:49-05:00",
-    "note": "closed=GitHub yesterday_rendering_sec; new=Fleet (fleet-ok); prorated x0.13 (upstream day starts 7:00PM Toronto = 00:00 UTC)"
+    "note": "closed=GitHub yesterday_rendering_sec; new=Fleet (fleet-ok); prorated x0.29 (upstream day starts 7:00PM Toronto = 00:00 UTC)"
   }
 }
