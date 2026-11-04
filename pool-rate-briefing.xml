@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+  <Say voice="female">Hey Uzi, it's Novacore with a quick Sogni pool-rate update from Muse's GitHub hourly income data. For November third, today is at $23.22 US — that's $2.04 PAYG and $21.18 subscription — or about $32.46 Canadian. Month to date on GitHub is $62.71 US. Workers so far: four sixty-two month to date $31.54, four sixty-three $24.32. Month forecast on that row is about $690.57 US, or $965.48 Canadian. The new projected pool rate is 0.000294 dollars per unit. Worker pool about $72,168. Network spark about 24.7 million. Month is about 10 percent elapsed. October's final rate was 0.000497. Same unit pace at October's rate would have been about $37.87 US for the day, around $53 Canadian — November's lower projected rate is why today's US dollar day looks lighter, not a formula break. That's the pool-rate brief.</Say>
+  <Hangup/>
+</Response>
