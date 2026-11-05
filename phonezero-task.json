@@ -8,7 +8,7 @@
   },
   "callback": "+12892687236",
   "goal": "Deliver Sogni 8pm\u21928pm Toronto earnings briefing with live CAD and friendly worker hours, soft check-in, then end.",
-  "opener": "Hey Uzi, it's Novacore with your Sogni briefing. Your earning day still runs eight to eight, Toronto time. The day that just closed came in at $31.65 take-home, Canadian. Since eight, you're only at $0.31 so far. At the closed-day pace, November is looking like about $950.00. On the workers, four sixty-two was busy about twenty and three quarters of the twenty-four hours on the closed day, and a few minutes so far today. four sixty-three was about eighteen and a quarter hours, and a few minutes so far. four seventy-eight was about ten and a half hours, and a few minutes so far. That's the update. Anything you want me to look into?",
+  "opener": "Hey Uzi, it's Novacore with your Sogni briefing. Your earning day still runs eight to eight, Toronto time. The day that just closed came in at $31.65 take-home, Canadian. Since eight, you're only at $0.47 so far. At the closed-day pace, November is looking like about $950.00. On the workers, four sixty-two was busy about twenty and three quarters of the twenty-four hours on the closed day, and a few minutes so far today. four sixty-three was about eighteen and a quarter hours, and a few minutes so far. four seventy-eight was about ten and a half hours, and a few minutes so far. That's the update. Anything you want me to look into?",
   "constraints": [
     "disclose_ai off",
     "never say AI/PhoneZero/Ensia/NFT",
@@ -25,21 +25,21 @@
   ],
   "facts": {
     "closed_cad": 31.65,
-    "new_day_cad": 0.31,
+    "new_day_cad": 0.47,
     "month_est_cad": 950,
     "fx": 1.396719,
     "util": {
       "462": {
         "closed_h": 20.67,
-        "new_h": 0.16
+        "new_h": 0.25
       },
       "463": {
         "closed_h": 18.26,
-        "new_h": 0.13
+        "new_h": 0.21
       },
       "478": {
         "closed_h": 10.49,
-        "new_h": 0.1
+        "new_h": 0.15
       }
     },
     "util_snapshot": "2026-11-04T19:50:34-05:00",
