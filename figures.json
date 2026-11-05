@@ -1,46 +1,31 @@
 {
-  "baked_at": "2026-11-04T22:06:02.610271-05:00",
+  "baked_at": "2026-11-04T22:55:33.008423-05:00",
   "earning_day": "8pm\u21928pm America/Toronto",
-  "closed_day_cad": 49.51,
-  "new_day_cad": 1.28,
-  "month_estimate_cad": 1559,
-  "month_basis": "oct-rate closed-day avg CA$51.98 x 30 days (4 closed days)",
-  "month_raw_pace_cad": 1559,
-  "closed_window": {
-    "start": "2026-11-03T20:00:00-05:00",
-    "end": "2026-11-04T20:00:00-05:00",
-    "label": "04 Nov 2026"
-  },
-  "closed_source": "oct-rate daily-earnings.csv 04 Nov 2026 (october_2026_final)",
-  "closed_by_worker_usd": null,
-  "new_source": "oct-rate daily-earnings.csv 05 Nov 2026 prorated x0.68 (upstream day starts 7:00PM Toronto = 00:00 UTC)",
-  "fx": 1.399422,
-  "closed_usd": 35.38,
-  "new_usd": 0.91,
-  "snap_day_label": "05 Nov 2026",
-  "snap_y_label": "04 Nov 2026",
-  "money_sot": "sogni-november-at-october-rate daily-earnings.csv oct_total_*",
-  "oct_pool_rate_usd_per_unit": 0.00049733,
-  "oct_rate_basis": "october_2026_final",
-  "closed_payg_usd": 1.61,
-  "closed_oct_sub_usd": 33.7712,
+  "closed_day_cad": 31.65,
+  "new_day_cad": 5.07,
+  "month_estimate_cad": 950,
+  "fx": 1.396719,
+  "closed_usd": 22.66,
+  "new_usd": 3.63,
+  "snap_day_label": "Nov 5",
+  "snap_y_label": "Nov 4",
   "util_hours": {
     "462": {
       "closed_h": 20.67,
-      "new_h": 1.51
+      "new_h": 3.16
     },
     "463": {
       "closed_h": 18.26,
-      "new_h": 1.27
+      "new_h": 2.6
     },
     "478": {
       "closed_h": 10.49,
-      "new_h": 0.85
+      "new_h": 1.49
     }
   },
   "util_source": {
-    "closed": "2026-11-04T21:44:53.405699-05:00",
-    "new": "2026-11-04T19:50:34-05:00",
-    "note": "closed=GitHub yesterday_rendering_sec; new=GitHub (fleet-before-day-start (2026-11-04T19:50:34-05:00 < 2026-11-04T20:00:00-05:00)); prorated x0.68 (upstream day starts 7:00PM Toronto = 00:00 UTC)"
+    "closed": "2026-11-04T22:45:22.982280-05:00",
+    "new": "2026-11-04T22:45:22.982280-05:00",
+    "note": "closed=GitHub yesterday_rendering_sec; new=GitHub today_rendering_sec (fleet snapshot not available in this VM)"
   }
 }
