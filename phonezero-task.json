@@ -7,12 +7,12 @@
     "phone": "+14169312306"
   },
   "callback": "+12892687236",
-  "goal": "Deliver Sogni 8pm\u21928pm Toronto earnings briefing with October-rate books CAD and friendly worker hours, soft check-in, then end.",
-  "opener": "Hey Uzi, it's Novacore with your Sogni briefing. Your earning day still runs eight to eight, Toronto time. The day that just closed came in at $49.51 take-home, Canadian, at October's pool rate. Since eight, you're only at $1.77 so far. At the closed-day pace, November is looking like about $1,559.00. On the workers, four sixty-two was busy about twenty and three quarters of the twenty-four hours on the closed day, and about ten and a half hours so far today. four sixty-three was about eighteen and a quarter hours, and about nine hours so far. four seventy-eight was about ten and a half hours, and about five and three-quarter hours so far. That's the update. Anything you want me to look into?",
+  "goal": "Deliver Sogni 8pm\u21928pm Toronto earnings briefing with live CAD and friendly worker hours, soft check-in, then end.",
+  "opener": "Hey Uzi, it's Novacore with your Sogni briefing. Quick reminder, your earning day runs eight pm to eight pm Toronto time. The last full day, the one that closed at eight pm last night, came in at thirty-one sixty-five Canadian take-home. Today's day, which closes at eight tonight, is already at nineteen eighty-one Canadian, so it's tracking right alongside. At the closed-day pace, November lands around nine hundred fifty Canadian. On the workers, four sixty-two was busy about twenty and three-quarter of the twenty-four hours on the closed day, and about thirteen and a quarter hours so far today. four sixty-three was about eighteen and a quarter hours, and about eleven hours so far. four seventy-eight was about ten and a half hours, and about six and three-quarter hours so far. That's the update. Anything you want me to look into?",
   "constraints": [
     "disclose_ai off",
     "never say AI/PhoneZero/Ensia/NFT",
-    "speak October-rate books CAD (oct_total_cad) from sogni-november-at-october-rate daily-earnings.csv, not live snap",
+    "speak Combined CAD from snap",
     "friendly worker hours only",
     "load this file; speak opener as first words"
   ],
@@ -24,26 +24,25 @@
     "goodbye end_call"
   ],
   "facts": {
-    "closed_cad": 49.51,
-    "new_day_cad": 1.77,
-    "month_est_cad": 1559,
-    "fx": 1.399422,
-    "money_sot": "October-rate reference books (pool 0.00049733 USD/unit), not Sogni official November accrual",
+    "closed_cad": 31.65,
+    "new_day_cad": 19.81,
+    "month_est_cad": 950,
+    "fx": 1.396719,
     "util": {
       "462": {
         "closed_h": 20.67,
-        "new_h": 10.39
+        "new_h": 13.24
       },
       "463": {
         "closed_h": 18.26,
-        "new_h": 9.07
+        "new_h": 10.88
       },
       "478": {
         "closed_h": 10.49,
-        "new_h": 5.77
+        "new_h": 6.76
       }
     },
-    "util_snapshot": "2026-11-05T07:53:14-05:00",
+    "util_snapshot": "2026-11-05T10:44:50.757721-05:00",
     "earning_day": "8pm\u21928pm America/Toronto",
     "brief_repo": "novacoreaiservices/phonezero-brief"
   },
