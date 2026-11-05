@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """PhoneZero fast earnings path: GitHub snap → bake brief → push phonezero-brief → xAI upload → Telnyx dial + SMS.
 
-No xAI Live console / computerUse. CAD SoT = sogni-income-history snap.json Combined (usd×fx).
+No xAI Live console / computerUse. CAD SoT = novacoreaiservices/sogni-november-at-october-rate
+daily-earnings.csv oct_total_usd/oct_total_cad (October 2026 final pool rate 0.00049733 USD/unit;
+reference books, not Sogni's official November accrual). Worker util still from sogni-income-history.
 """
 from __future__ import annotations
 
@@ -19,6 +21,7 @@ from zoneinfo import ZoneInfo
 
 ET = ZoneInfo("America/Toronto")
 WORKERS = (462, 463, 478)
+OCT_REPO = "repos/novacoreaiservices/sogni-november-at-october-rate/contents"
 SNAP_URL = "https://raw.githubusercontent.com/novacoreaiservices/sogni-income-history/main/snap.json"
 UTIL_URL = "https://raw.githubusercontent.com/novacoreaiservices/sogni-income-history/main/worker-utilization.csv"
 BRIEF_DIR = Path("/workspace/phonezero-brief")
@@ -401,6 +404,70 @@ def cad_from_snap(snap: dict, n: datetime | None = None) -> dict:
     }
 
 
+def fetch_oct_daily(path: str | None = None) -> list[dict]:
+    """October-rate books daily CSV (private repo via gh api; local override for dry-runs)."""
+    if path:
+        txt = Path(path).read_text()
+    else:
+        txt = subprocess.check_output(
+            ["gh", "api", "-H", "Accept: application/vnd.github.raw", f"{OCT_REPO}/daily-earnings.csv"],
+            text=True, timeout=60)
+    return list(csv.DictReader(txt.splitlines()))
+
+
+def cad_from_oct(rows: list[dict], n: datetime | None = None) -> dict:
+    """Closed day = window ending at most recent 8pm ET -> CSV row day_label == end date
+    (upstream day is UTC-midnight based). New day = row for end+1, pro-rated by
+    upstream_rebase_factor in winter. Missing closed row => closed_stale (refuse bake/dial)."""
+    import calendar
+
+    n = n or now_et()
+    start, end = expected_closed_window(n)
+    lab = lambda d: f"{d.day:02d} {d:%b %Y}"
+    want_y, want_day = lab(end), lab(end + timedelta(days=1))
+    by = {r["day_label"].strip(): r for r in rows}
+    cr, nr = by.get(want_y), by.get(want_day)
+    closed_stale = cr is None or not cr.get("oct_total_cad")
+    fx = float((nr or cr or rows[-1])["fx_usdcad"])
+    if closed_stale:
+        closed_usd = closed_cad = 0.0
+        closed_src = f"STALE oct-rate daily-earnings.csv has no closed row {want_y}"
+    else:
+        closed_usd, closed_cad = round(float(cr["oct_total_usd"]), 2), round(float(cr["oct_total_cad"]), 2)
+        closed_src = f"oct-rate daily-earnings.csv {want_y} ({cr.get('source','').strip() or cr.get('oct_rate_basis')})"
+    if nr and nr.get("oct_total_cad"):
+        rb, rb_note = upstream_rebase_factor(n)
+        new_usd = round(float(nr["oct_total_usd"]) * rb, 2)
+        new_cad = round(float(nr["oct_total_cad"]) * rb, 2)
+        new_src = f"oct-rate daily-earnings.csv {want_day} {rb_note}"
+    else:
+        new_usd, new_cad, new_src = 0.0, 0.0, f"no oct-rate row {want_day} yet; new day ~0"
+    days = calendar.monthrange(n.year, n.month)[1]
+    # month: actual closed month-to-date + closed-day pace (avg of closed days this month) for the rest
+    mtd = [float(r["oct_total_cad"]) for r in rows
+           if r.get("oct_total_cad") and datetime.strptime(r["day_label"].strip(), "%d %b %Y").month == n.month
+           and datetime.strptime(r["day_label"].strip(), "%d %b %Y").date() <= end.date()]
+    pace = (sum(mtd) / len(mtd)) if mtd else closed_cad
+    raw_pace_month = round(pace * days)
+    month = raw_pace_month
+    month_basis = f"oct-rate closed-day avg CA${pace:.2f} x {days} days ({len(mtd)} closed days)"
+    return {
+        "fx": fx, "closed_usd": closed_usd, "new_usd": new_usd,
+        "closed_cad": closed_cad, "new_cad": new_cad,
+        "month_est_cad": month, "month_basis": month_basis, "month_outage_aware": None,
+        "month_raw_pace_cad": raw_pace_month,
+        "closed_window": {"start": start.isoformat(), "end": end.isoformat(), "label": want_y},
+        "closed_source": closed_src, "closed_by_worker_usd": None, "closed_stale": closed_stale,
+        "new_source": new_src, "dayLabel": want_day if nr else None, "yLabel": want_y if cr else None,
+        "days_in_month": days,
+        "money_sot": "sogni-november-at-october-rate daily-earnings.csv oct_total_*",
+        "oct_pool_rate_usd_per_unit": float((cr or nr or rows[-1]).get("oct_pool_rate_usd_per_unit") or 0.00049733),
+        "oct_rate_basis": (cr or nr or rows[-1]).get("oct_rate_basis", "october_2026_final"),
+        "closed_payg_usd": float(cr["payg_usd"]) if cr else None,
+        "closed_oct_sub_usd": float(cr["oct_sub_usd"]) if cr else None,
+    }
+
+
 def build_opener(cad: dict, util: dict) -> str:
     c = money_words(cad["closed_cad"])
     n = money_words(cad["new_cad"])
@@ -454,17 +521,14 @@ def build_opener(cad: dict, util: dict) -> str:
     body = [
         "Hey Uzi, it's Novacore with your Sogni briefing.",
         "Your earning day still runs eight to eight, Toronto time.",
-        f"The day that just closed came in at {c} take-home, Canadian.",
+        f"The day that just closed came in at {c} take-home, Canadian, at October's pool rate.",
     ]
     if cad["new_cad"] >= 5:
         body.append(f"Since eight, you're already at {n}, so it's tracking right alongside.")
     else:
         body.append(f"Since eight, you're only at {n} so far.")
     month_name = now_et().strftime("%B")
-    if cad.get("month_outage_aware"):
-        body.append(f"Counting the early-month outage, {month_name} is on track for about {m}.")
-    else:
-        body.append(f"At the closed-day pace, {month_name} is looking like about {m}.")
+    body.append(f"At the closed-day pace, {month_name} is looking like about {m}.")
     body.append("On the workers, " + wlines[0])
     body.extend(wlines[1:])
     body.append("That's the update. Anything you want me to look into?")
@@ -497,6 +561,11 @@ def write_brief(cad: dict, util: dict, opener: str) -> dict:
         "new_usd": cad["new_usd"],
         "snap_day_label": cad["dayLabel"],
         "snap_y_label": cad["yLabel"],
+        "money_sot": cad.get("money_sot"),
+        "oct_pool_rate_usd_per_unit": cad.get("oct_pool_rate_usd_per_unit"),
+        "oct_rate_basis": cad.get("oct_rate_basis"),
+        "closed_payg_usd": cad.get("closed_payg_usd"),
+        "closed_oct_sub_usd": cad.get("closed_oct_sub_usd"),
         "util_hours": {
             str(k): {"closed_h": v["closed_h"], "new_h": v["new_h"]}
             for k, v in util["util"].items()
@@ -513,12 +582,12 @@ def write_brief(cad: dict, util: dict, opener: str) -> dict:
         "disclose_ai": False,
         "callee": {"name": "Uzi", "phone": TO},
         "callback": FROM,
-        "goal": "Deliver Sogni 8pm→8pm Toronto earnings briefing with live CAD and friendly worker hours, soft check-in, then end.",
+        "goal": "Deliver Sogni 8pm→8pm Toronto earnings briefing with October-rate books CAD and friendly worker hours, soft check-in, then end.",
         "opener": opener,
         "constraints": [
             "disclose_ai off",
             "never say AI/PhoneZero/Ensia/NFT",
-            "speak Combined CAD from snap",
+            "speak October-rate books CAD (oct_total_cad) from sogni-november-at-october-rate daily-earnings.csv, not live snap",
             "friendly worker hours only",
             "load this file; speak opener as first words",
         ],
@@ -534,6 +603,7 @@ def write_brief(cad: dict, util: dict, opener: str) -> dict:
             "new_day_cad": cad["new_cad"],
             "month_est_cad": cad["month_est_cad"],
             "fx": cad["fx"],
+            "money_sot": "October-rate reference books (pool 0.00049733 USD/unit), not Sogni official November accrual",
             "util": {
                 str(k): {"closed_h": v["closed_h"], "new_h": v["new_h"]}
                 for k, v in util["util"].items()
@@ -781,14 +851,14 @@ def main():
     g.add_argument("--dry-run", action="store_true", help="compute figures+opener only; no writes/push/upload/dial")
     ap.add_argument("--skip-upload", action="store_true")
     ap.add_argument("--now", help="ISO Toronto time override (dry-run proofs), e.g. 2026-10-28T20:23")
-    ap.add_argument("--snap-file", help="use a local snap.json instead of GitHub (dry-run proofs)")
+    ap.add_argument("--snap-file", help="(legacy, unused for money) local snap.json")
+    ap.add_argument("--oct-file", help="local October-rate daily-earnings.csv instead of gh api (dry-run proofs)")
     args = ap.parse_args()
     global _NOW_OVERRIDE
     if args.now:
         _NOW_OVERRIDE = datetime.fromisoformat(args.now).replace(tzinfo=ET)
 
-    snap = json.loads(Path(args.snap_file).read_text()) if args.snap_file else fetch_snap()
-    cad = cad_from_snap(snap)
+    cad = cad_from_oct(fetch_oct_daily(args.oct_file))
     if args.dry_run:
         print(json.dumps({"now": now_et().isoformat(), **{k: v for k, v in cad.items()},
                           "opener_money": {"closed": money_words(cad["closed_cad"]),
@@ -803,7 +873,7 @@ def main():
     if cad["closed_stale"]:
         print(json.dumps({"error": "stale-closed-day", "detail": cad["closed_source"],
                           "expected_window": cad["closed_window"],
-                          "hint": "collector freeze (~8:13pm ET) not found and snap not rotated; retry in a few minutes"}), file=sys.stderr)
+                          "hint": "October-rate daily-earnings.csv lacks the just-closed day row; retry after it updates"}), file=sys.stderr)
         sys.exit(3)
     gh = fetch_util_github()
     fleet = fetch_util_fleet()
