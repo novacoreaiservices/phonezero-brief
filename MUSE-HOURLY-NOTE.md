@@ -1,10 +1,14 @@
-# Note for Muse / PhoneZero (2026-11-09)
-PhoneZero briefing money SoT is again novacoreaiservices/sogni-income-history:
-- hourly-income.csv last row: yesterday_8pm_* / day_8pm_* for the 8pm→8pm Toronto window
-- snap.json: fx + Combined/PAYG labels (income-page/UTC-aligned; do not speak snap yUsd as the 8pm closed day)
-- sogni-monthly-income-forecast.md: month estimate when outage-aware/forecast is available
+# Muse hourly note (PhoneZero money SoT)
 
-Muse's hourly push of phonezero-brief figures.json / natural-greeting.txt / latest.json must
-use run_earnings_call.py (cad_from_income_history) or the same income-history files — NOT
-sogni-november-at-october-rate daily-earnings.csv. That October-rate book is optional
-legacy (--oct-file) only and stopped updating after 05 Nov 2026.
+PhoneZero night brief money SoT = **novacoreaiservices/sogni-income-history**:
+
+- `hourly-income.csv` last row: **`yesterday_total_*` / `today_*`** for the **00:00 UTC** window
+  (= **7pm→7pm America/Toronto in winter EST**, 8pm→8pm in summer EDT)
+- `snap.json`: fx + Combined/PAYG labels (`yUsd`/`dayUsd`/`yPayg`/`dayPayg`) — same UTC window
+- `sogni-monthly-income-forecast.md`: month when available
+- `worker-utilization.csv`: `yesterday_rendering_sec` / `today_rendering_sec` (UTC `date_utc`)
+
+Do **not** overwrite the brief with a fixed local-8pm slice or live-only snap CAD that disagrees with the just-closed 00:00 UTC day.
+Legacy `*_8pm_*` columns remain in the CSV for the old fixed-8pm Toronto slice; PhoneZero no longer briefs from them by default.
+
+Ontario DST: fall back Nov 1 2026 → EST; earning day spoken as seven-to-seven until spring forward.

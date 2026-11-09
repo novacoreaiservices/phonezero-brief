@@ -2,8 +2,9 @@
 """PhoneZero fast earnings path: income-history → bake brief → push phonezero-brief → xAI upload → Telnyx dial + SMS.
 
 No xAI Live console / computerUse. Money SoT = novacoreaiservices/sogni-income-history:
-hourly-income.csv last row (yesterday_8pm_*/day_8pm_* for the 8pm→8pm Toronto window),
+hourly-income.csv last row (yesterday_total_*/today_* = 00:00 UTC window = 7pm EST / 8pm EDT Toronto),
 snap.json (fx + Combined/PAYG labels), sogni-monthly-income-forecast.md (month when available).
+Earning day boundary is DST-aware via 00:00 UTC (not a fixed 8pm Toronto clock).
 Optional --oct-file keeps sogni-november-at-october-rate as a legacy override only.
 """
 from __future__ import annotations
@@ -135,24 +136,43 @@ def worker_spoken(n: int) -> str:
 
 
 def earning_day_start(n: datetime | None = None) -> datetime:
-    """Current 8pm→8pm Toronto window start (last 8pm at or before now)."""
+    """Current earning-day start = most recent 00:00 UTC, expressed in America/Toronto.
+
+    DST-aware: 7pm EST in winter, 8pm EDT in summer. Matches Sogni/Fleet/snap/hourly
+    'today' / 'yesterday_total_*' / worker-utilization date_utc windows.
+    """
     n = n or now_et()
-    eight = n.replace(hour=20, minute=0, second=0, microsecond=0)
-    if n < eight:
-        eight = eight - timedelta(days=1)
-    return eight
+    utc = n.astimezone(ZoneInfo("UTC"))
+    mid = utc.replace(hour=0, minute=0, second=0, microsecond=0)
+    return mid.astimezone(ET)
+
+
+def boundary_words(n: datetime | None = None) -> dict:
+    """Spoken clock words for the 00:00 UTC boundary in Toronto."""
+    ds = earning_day_start(n)
+    h = ds.hour
+    if h == 19:
+        return {
+            "num": "seven",
+            "clock": "7pm",
+            "to_to": "seven to seven",
+            "earning_day": "7pm→7pm America/Toronto (00:00 UTC)",
+            "hour": 19,
+        }
+    # EDT (and any other offset that lands on 20)
+    return {
+        "num": "eight",
+        "clock": "8pm",
+        "to_to": "eight to eight",
+        "earning_day": "8pm→8pm America/Toronto (00:00 UTC)",
+        "hour": h,
+    }
 
 
 def upstream_rebase_factor(n: datetime | None = None) -> tuple[float, str]:
-    """Sogni/Fleet/CSV 'today' resets at 00:00 UTC (= 8pm EDT, but 7pm EST in winter).
-    When UTC midnight precedes our 8pm Toronto start, pro-rate upstream 'today' to our window."""
-    n = n or now_et()
+    """Earning window is 00:00 UTC — same as upstream Sogni/Fleet/CSV 'today'. Never prorate."""
     ds = earning_day_start(n)
-    utc_mid = n.astimezone(ZoneInfo("UTC")).replace(hour=0, minute=0, second=0, microsecond=0).astimezone(ZoneInfo("America/Toronto"))
-    if utc_mid >= ds or n <= utc_mid:
-        return 1.0, "no-rebase"
-    f = max(0.0, min(1.0, (n - ds).total_seconds() / (n - utc_mid).total_seconds()))
-    return f, f"prorated x{f:.2f} (upstream day starts {utc_mid.strftime('%-I:%M%p')} Toronto = 00:00 UTC)"
+    return 1.0, f"no-rebase (window starts {ds.strftime('%-I:%M%p')} Toronto = 00:00 UTC)"
 
 
 def parse_fleet_ts(raw) -> datetime | None:
@@ -234,7 +254,7 @@ def fetch_util_fleet() -> dict | None:
 
 
 def merge_util(gh: dict, fleet: dict | None) -> dict:
-    """Closed hours from GitHub yesterday; new-day from Fleet only if collect is in the current 8pm window."""
+    """Closed hours from GitHub yesterday (UTC day); new-day from Fleet only if collect is in the current 00:00 UTC window."""
     out = {}
     gh_ts = gh.get("ts")
     n = now_et()
@@ -248,7 +268,7 @@ def merge_util(gh: dict, fleet: dict | None) -> dict:
         if fts is None:
             fleet_reason = "unparsed-fleet-ts"
         elif fts < day_start:
-            # e.g. 7:58pm collect after 8pm close still holds prior-day workSec
+            # e.g. collect just before 00:00 UTC close still holds prior-day workSec
             fleet_reason = f"fleet-before-day-start ({fts.isoformat()} < {day_start.isoformat()})"
         else:
             # sanity: fleet hours cannot exceed elapsed window (+small slack)
@@ -296,14 +316,15 @@ def _label(dt: datetime) -> str:
 
 
 def expected_closed_window(n: datetime | None = None) -> tuple[datetime, datetime]:
-    """The just-ended earning day: [last 8pm - 24h, last 8pm]. Labelled by its END date."""
+    """The just-ended earning day: [last 00:00 UTC - 24h, last 00:00 UTC]. Labelled by its END date (Toronto)."""
     end = earning_day_start(n)
     return end - timedelta(days=1), end
 
 
 def closed_from_collector(end: datetime) -> dict | None:
-    """Fleet collector freeze (~8:13pm ET) in closed_days.json windows[] keyed by start UTC.
-    Match on end_toronto == the most recent 8pm; only return if frozen_at_utc is set."""
+    """Fleet collector freeze (~13 min after 00:00 UTC close: ~7:13pm EST / ~8:13pm EDT)
+    in closed_days.json windows[] keyed by start UTC.
+    Match on end_toronto == the most recent 00:00 UTC boundary; only return if frozen_at_utc is set."""
     try:
         d = json.loads(CLOSED_DAYS_JSON.read_text())
     except Exception:
@@ -348,7 +369,7 @@ def outage_aware_month() -> dict | None:
 
 
 def cad_from_snap(snap: dict, n: datetime | None = None) -> dict:
-    """Closed day = the window ending at the most recent 8pm ET (newly frozen day).
+    """Closed day = the window ending at the most recent 00:00 UTC (7pm EST / 8pm EDT Toronto).
     Priority: (1) collector closed_days.json window frozen for that end; (2) snap yUsd only if
     snap.yLabel == that end date; else STALE (closed_stale=True, dial refused)."""
     import calendar
@@ -433,14 +454,16 @@ def cad_from_income_history(
     snap: dict | None = None,
     n: datetime | None = None,
 ) -> dict:
-    """Closed/new CAD from income-history 8pm Toronto window columns.
+    """Closed/new CAD from income-history 00:00 UTC window columns.
 
-    Prefer hourly yesterday_8pm_* / day_8pm_* (founder 8pm→8pm). snap supplies fx +
-    Combined/PAYG cross-check labels. Missing closed 8pm coverage => closed_stale.
+    Prefer hourly yesterday_total_usd + today_* (same window as snap yUsd/dayUsd =
+    7pm→7pm EST / 8pm→8pm EDT). snap supplies fx + Combined/PAYG labels.
+    Missing closed coverage => closed_stale. No 8pm prorate (window == upstream).
     """
     import calendar
 
     n = n or now_et()
+    bw = boundary_words(n)
     start, end = expected_closed_window(n)
     lab = lambda d: f"{d.day:02d} {d:%b %Y}"
     want_y_csv, want_day_csv = lab(end), lab(end + timedelta(days=1))
@@ -455,16 +478,25 @@ def cad_from_income_history(
     if fx is None:
         fx = 1.0
 
-    closed_usd = _f(hourly, "yesterday_8pm_total_usd")
-    closed_cad = _f(hourly, "yesterday_8pm_total_cad")
-    closed_payg_usd = _f(hourly, "yesterday_8pm_payg_usd")
-    closed_sub_usd = _f(hourly, "yesterday_8pm_sub_usd", 0.0)
-    if closed_cad is None and closed_usd is not None:
-        closed_cad = round(closed_usd * fx, 2)
-    if closed_usd is None and closed_cad is not None:
-        closed_usd = round(closed_cad / fx, 2) if fx else 0.0
+    # Closed day: UTC-midnight / 00:00 UTC window (yesterday_total_*). No yesterday_total_cad col.
+    closed_usd = _f(hourly, "yesterday_total_usd")
+    closed_cad = round(closed_usd * fx, 2) if closed_usd is not None else None
 
-    # Stale if hourly has not rotated to the current earning-day label, or closed 8pm CAD missing.
+    # PAYG for closed: snap yPayg is UTC-aligned; hourly has no yesterday_payg_* column.
+    closed_payg_usd = None
+    if snap is not None and snap.get("yPayg") not in (None, ""):
+        try:
+            closed_payg_usd = float(snap["yPayg"])
+        except Exception:
+            closed_payg_usd = None
+    if closed_payg_usd is None and closed_usd is not None:
+        # Fall back: if recent 8pm-sub and today-sub are ~0, treat closed as all PAYG.
+        sub_hint = (_f(hourly, "today_sub_usd", 0.0) or 0.0) + (_f(hourly, "yesterday_8pm_sub_usd", 0.0) or 0.0)
+        closed_payg_usd = closed_usd if sub_hint <= 0.005 else None
+    closed_sub_usd = 0.0
+    if closed_usd is not None and closed_payg_usd is not None:
+        closed_sub_usd = max(0.0, round(closed_usd - closed_payg_usd, 2))
+
     label_ok = day_label == want_day_csv
     closed_present = closed_cad is not None and closed_usd is not None
     closed_stale = not (label_ok and closed_present)
@@ -473,32 +505,32 @@ def cad_from_income_history(
         closed_cad = closed_cad or 0.0
         closed_src = (
             f"STALE hourly day_label={day_label!r} want {want_day_csv}; "
-            f"yesterday_8pm_total_cad={hourly.get('yesterday_8pm_total_cad')!r} @ {ts}"
+            f"yesterday_total_usd={hourly.get('yesterday_total_usd')!r} @ {ts}"
         )
     else:
         closed_usd = round(float(closed_usd), 2)
         closed_cad = round(float(closed_cad), 2)
-        closed_src = f"hourly yesterday_8pm_* {want_y_csv} @ {ts}"
+        closed_src = f"hourly yesterday_total_usd {want_y_csv} @ {ts} ({bw['earning_day']})"
 
-    # New day: prefer day_8pm_* (already 8pm→8pm). Fall back to today_* with DST prorate.
-    new_usd = _f(hourly, "day_8pm_total_usd")
-    new_cad = _f(hourly, "day_8pm_total_cad")
-    new_payg_usd = _f(hourly, "day_8pm_payg_usd")
-    new_sub_usd = _f(hourly, "day_8pm_sub_usd", 0.0)
-    if new_usd is not None and new_cad is not None:
-        new_usd, new_cad = round(new_usd, 2), round(new_cad, 2)
-        new_src = f"hourly day_8pm_* {want_day_csv}"
-    else:
-        rb, rb_note = upstream_rebase_factor(n)
-        t_usd = _f(hourly, "today_total_usd", 0.0) or 0.0
-        t_cad = _f(hourly, "today_total_cad")
-        if t_cad is None:
-            t_cad = t_usd * fx
-        new_usd = round(t_usd * rb, 2)
-        new_cad = round(float(t_cad) * rb, 2)
-        new_payg_usd = round((_f(hourly, "today_payg_usd", 0.0) or 0.0) * rb, 2)
-        new_sub_usd = round((_f(hourly, "today_sub_usd", 0.0) or 0.0) * rb, 2)
-        new_src = f"hourly today_* {rb_note}"
+    # New day: today_* already matches 00:00 UTC window (no rebase).
+    new_usd = _f(hourly, "today_total_usd")
+    new_cad = _f(hourly, "today_total_cad")
+    new_payg_usd = _f(hourly, "today_payg_usd")
+    new_sub_usd = _f(hourly, "today_sub_usd", 0.0)
+    if new_usd is None:
+        new_usd = 0.0
+    if new_cad is None:
+        new_cad = round(float(new_usd) * fx, 2)
+    new_usd, new_cad = round(float(new_usd), 2), round(float(new_cad), 2)
+    if new_payg_usd is None and snap is not None and snap.get("dayPayg") not in (None, ""):
+        try:
+            new_payg_usd = float(snap["dayPayg"])
+        except Exception:
+            new_payg_usd = new_usd
+    if new_payg_usd is None:
+        new_payg_usd = new_usd
+    new_sub_usd = float(new_sub_usd or 0.0)
+    new_src = f"hourly today_* {want_day_csv} (00:00 UTC window, no-rebase)"
 
     closed_payg_cad = round((closed_payg_usd or 0.0) * fx, 2) if closed_payg_usd is not None else None
     new_payg_cad = round((new_payg_usd or 0.0) * fx, 2) if new_payg_usd is not None else None
@@ -525,9 +557,8 @@ def cad_from_income_history(
             f"snap yLabel={snap_y} dayLabel={snap_day} "
             f"yUsd={snap.get('yUsd')} yPayg={snap.get('yPayg')} "
             f"dayUsd={snap.get('dayUsd')} dayPayg={snap.get('dayPayg')} "
-            f"(income-page/UTC-aligned; briefing uses hourly 8pm window)"
+            f"(UTC-aligned; matches briefing 00:00 UTC / {bw['clock']} Toronto window)"
         )
-        # Soft freshness cross-check: snap should also show the closed label.
         if not closed_stale and snap_y and snap_y != want_y_snap:
             closed_stale = True
             closed_src = (
@@ -553,7 +584,7 @@ def cad_from_income_history(
         "dayLabel": snap_day or (want_day_snap if label_ok else day_label),
         "yLabel": snap_y or (want_y_snap if closed_present else None),
         "days_in_month": days,
-        "money_sot": "sogni-income-history hourly-income.csv 8pm window + snap.json + forecast.md",
+        "money_sot": "sogni-income-history hourly-income.csv 00:00 UTC window + snap.json + forecast.md",
         "hourly_timestamp_toronto": ts,
         "hourly_day_label": day_label,
         "closed_payg_usd": round(closed_payg_usd, 2) if closed_payg_usd is not None else None,
@@ -566,6 +597,8 @@ def cad_from_income_history(
         "new_sub_cad": new_sub_cad,
         "payg_only": payg_only,
         "snap_crosscheck": snap_note,
+        "earning_day": bw["earning_day"],
+        "boundary_clock": bw["clock"],
         "combined_vs_payg": {
             "closed_combined_usd": closed_usd,
             "closed_payg_usd": round(closed_payg_usd, 2) if closed_payg_usd is not None else None,
@@ -590,9 +623,9 @@ def fetch_oct_daily(path: str | None = None) -> list[dict]:
 
 
 def cad_from_oct(rows: list[dict], n: datetime | None = None) -> dict:
-    """Closed day = window ending at most recent 8pm ET -> CSV row day_label == end date
-    (upstream day is UTC-midnight based). New day = row for end+1, pro-rated by
-    upstream_rebase_factor in winter. Missing closed row => closed_stale (refuse bake/dial)."""
+    """Closed day = window ending at most recent 00:00 UTC -> CSV row day_label == end date
+    (same UTC-midnight basis as oct-rate rows). New day = row for end+1 (no rebase;
+    upstream_rebase_factor is always 1.0). Missing closed row => closed_stale."""
     import calendar
 
     n = n or now_et()
@@ -646,37 +679,8 @@ def build_opener(cad: dict, util: dict) -> str:
     c = money_words(cad["closed_cad"])
     n = money_words(cad["new_cad"])
     m = money_words(float(cad["month_est_cad"]))
-    # month whole dollars -> "about thirteen hundred and one dollars"
-    parts = [
-        "Hey Uzi, it's Novacore with your Sogni briefing.",
-        "Your earning day runs eight pm to eight pm Toronto time.",
-        f"The day that closed at eight pm came in at {c} take-home.",
-        f"Today's day, which closes at eight tonight, is already at {n}, so it's tracking right alongside."
-        if cad["new_cad"] >= 5
-        else f"In the new day since eight pm, you're at {n} so far.",
-        f"At the closed-day pace, October lands around {m}."
-        if now_et().month == 10
-        else f"At the closed-day pace, this month lands around {m}.",
-        "On the workers,",
-    ]
-    # worker sentences
-    first = True
-    for nft in WORKERS:
-        u = util["util"][nft]
-        closed_p = hours_phrase(u["closed_h"], of_day=first)
-        new_p = hours_phrase(u["new_h"], of_day=False)
-        name = worker_spoken(nft)
-        if first:
-            parts.append(
-                f"{name} was busy {closed_p} on the closed day, and {new_p} so far today."
-            )
-            first = False
-        else:
-            parts.append(
-                f"{name} was {closed_p.replace('about ', 'about ', 1)}, and {new_p} so far."
-            )
-    # fix middle workers to shorter form
-    # rebuild cleaner
+    bw = boundary_words()
+    num, clock, to_to = bw["num"], bw["clock"], bw["to_to"]
     wlines = []
     for i, nft in enumerate(WORKERS):
         u = util["util"][nft]
@@ -694,14 +698,14 @@ def build_opener(cad: dict, util: dict) -> str:
     # Full opener is also published as Live Welcome so the call starts mid-briefing (assistant→boss).
     body = [
         "Hey Uzi, it's Novacore with your Sogni briefing.",
-        "Your earning day still runs eight to eight, Toronto time.",
+        f"Your earning day still runs {to_to}, Toronto time.",
         f"The day that just closed came in at {c} take-home, Canadian"
         + (", all pay-as-you-go." if cad.get("payg_only") else "."),
     ]
     if cad["new_cad"] >= 5:
-        body.append(f"Since eight, you're already at {n}, so it's tracking right alongside.")
+        body.append(f"Since {num}, you're already at {n}, so it's tracking right alongside.")
     else:
-        body.append(f"Since eight, you're only at {n} so far.")
+        body.append(f"Since {num}, you're only at {n} so far.")
     month_name = now_et().strftime("%B")
     if cad.get("month_outage_aware"):
         body.append(f"Counting the early-month outage, {month_name} is on track for about {m}.")
@@ -712,21 +716,18 @@ def build_opener(cad: dict, util: dict) -> str:
     body.append("On the workers, " + wlines[0])
     body.extend(wlines[1:])
     body.append("That's the update. Anything you want me to look into?")
-    # join with spaces; worker lines already full sentences
     opener = body[0]
     for line in body[1:]:
-        if line.startswith("four ") or line.startswith("On the workers"):
-            opener += " " + line
-        else:
-            opener += " " + line
+        opener += " " + line
     return opener
+
 
 
 def write_brief(cad: dict, util: dict, opener: str) -> dict:
     baked_at = now_et().isoformat()
     figures = {
         "baked_at": baked_at,
-        "earning_day": "8pm→8pm America/Toronto",
+        "earning_day": cad.get("earning_day") or boundary_words()["earning_day"],
         "closed_day_cad": cad["closed_cad"],
         "new_day_cad": cad["new_cad"],
         "month_estimate_cad": cad["month_est_cad"],
@@ -773,12 +774,12 @@ def write_brief(cad: dict, util: dict, opener: str) -> dict:
         "disclose_ai": False,
         "callee": {"name": "Uzi", "phone": TO},
         "callback": FROM,
-        "goal": "Deliver Sogni 8pm→8pm Toronto earnings briefing with income-history Combined CAD (and PAYG when asked) plus friendly worker hours, soft check-in, then end.",
+        "goal": "Deliver Sogni 00:00 UTC (7pm EST / 8pm EDT Toronto) earnings briefing with income-history Combined CAD (and PAYG when asked) plus friendly worker hours, soft check-in, then end.",
         "opener": opener,
         "constraints": [
             "disclose_ai off",
             "never say AI/PhoneZero/Ensia/NFT",
-            "speak Combined CAD from sogni-income-history hourly 8pm window; distinguish PAYG vs Combined when asked; never invent figures",
+            "speak Combined CAD from sogni-income-history hourly 00:00 UTC window; distinguish PAYG vs Combined when asked; never invent figures",
             "friendly worker hours only",
             "load this file; speak opener as first words",
         ],
@@ -804,7 +805,7 @@ def write_brief(cad: dict, util: dict, opener: str) -> dict:
                 for k, v in util["util"].items()
             },
             "util_snapshot": util.get("fleet_ts") or util.get("gh_ts"),
-            "earning_day": "8pm→8pm America/Toronto",
+            "earning_day": cad.get("earning_day") or boundary_words()["earning_day"],
             "brief_repo": "novacoreaiservices/phonezero-brief",
         },
         "instructions_note": "human assistant briefing the boss; speak opener verbatim as first live words",
@@ -1078,11 +1079,11 @@ def main():
         except Exception as e:
             print("greeting_preview unavailable:", e)
         return
-    # Stale guard: never bake/dial a closed day that is not the just-ended 8pm→8pm window.
+    # Stale guard: never bake/dial a closed day that is not the just-ended 00:00 UTC window.
     if cad["closed_stale"]:
         print(json.dumps({"error": "stale-closed-day", "detail": cad["closed_source"],
                           "expected_window": cad["closed_window"],
-                          "hint": "income-history hourly/snap does not cover the just-closed 8pm Toronto day; retry after it updates"},), file=sys.stderr)
+                          "hint": "income-history hourly/snap does not cover the just-closed 00:00 UTC (7pm EST / 8pm EDT) day; retry after it updates"},), file=sys.stderr)
         sys.exit(3)
     gh = fetch_util_github()
     fleet = fetch_util_fleet()
