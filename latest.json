@@ -1,8 +1,8 @@
 {
-  "baked_at": "2026-11-09T19:55:40.921474-05:00",
-  "closed_cad": 47.73,
-  "new_day_cad": 56.28,
-  "month_est_cad": 1432,
+  "baked_at": "2026-11-09T19:59:14.351790-05:00",
+  "closed_cad": 56.35,
+  "new_day_cad": 1.78,
+  "month_est_cad": 1281,
   "raw": {
     "figures": "figures.json",
     "opener": "natural-greeting.txt",
