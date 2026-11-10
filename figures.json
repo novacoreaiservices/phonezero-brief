@@ -1,64 +1,31 @@
 {
-  "baked_at": "2026-11-09T20:08:42.795144-05:00",
-  "earning_day": "7pm\u21927pm America/Toronto (00:00 UTC)",
-  "closed_day_cad": 56.35,
-  "new_day_cad": 1.78,
-  "month_estimate_cad": 1281,
-  "month_basis": "hourly month_forecast_cad @ 2026-11-09T19:58:37.729143-05:00",
-  "month_raw_pace_cad": 1690,
-  "closed_window": {
-    "start": "2026-11-08T19:00:00-05:00",
-    "end": "2026-11-09T19:00:00-05:00",
-    "label": "Nov 9"
-  },
-  "closed_source": "hourly yesterday_total_usd 09 Nov 2026 @ 2026-11-09T19:58:37.729143-05:00 (7pm\u21927pm America/Toronto (00:00 UTC))",
-  "closed_by_worker_usd": null,
-  "new_source": "hourly today_* 10 Nov 2026 (00:00 UTC window, no-rebase)",
-  "fx": 1.411571,
+  "baked_at": "2026-11-09T20:55:36.448050-05:00",
+  "earning_day": "8pm\u21928pm America/Toronto",
+  "closed_day_cad": 56.34,
+  "new_day_cad": 1.81,
+  "month_estimate_cad": 1690,
+  "fx": 1.411275,
   "closed_usd": 39.92,
-  "new_usd": 1.26,
+  "new_usd": 1.28,
   "snap_day_label": "Nov 10",
   "snap_y_label": "Nov 9",
-  "money_sot": "sogni-income-history hourly-income.csv 00:00 UTC window + snap.json + forecast.md",
-  "oct_pool_rate_usd_per_unit": null,
-  "oct_rate_basis": null,
-  "closed_payg_usd": 39.92,
-  "closed_payg_cad": 56.35,
-  "closed_sub_usd": 0.0,
-  "closed_sub_cad": 0.0,
-  "closed_oct_sub_usd": null,
-  "new_payg_usd": 1.26,
-  "new_payg_cad": 1.78,
-  "new_sub_usd": 0.0,
-  "new_sub_cad": 0.0,
-  "payg_only": true,
-  "hourly_timestamp_toronto": "2026-11-09T19:58:37.729143-05:00",
-  "combined_vs_payg": {
-    "closed_combined_usd": 39.92,
-    "closed_payg_usd": 39.92,
-    "closed_sub_usd": 0.0,
-    "new_combined_usd": 1.26,
-    "new_payg_usd": 1.26,
-    "new_sub_usd": 0.0
-  },
-  "snap_crosscheck": "snap yLabel=Nov 9 dayLabel=Nov 10 yUsd=39.92 yPayg=39.92 dayUsd=1.28 dayPayg=1.28 (UTC-aligned; matches briefing 00:00 UTC / 7pm Toronto window)",
   "util_hours": {
     "462": {
       "closed_h": 4.63,
-      "new_h": 0.11
+      "new_h": 0.09
     },
     "463": {
       "closed_h": 4.34,
-      "new_h": 0.29
+      "new_h": 0.25
     },
     "478": {
       "closed_h": 2.77,
-      "new_h": 0.17
+      "new_h": 0.09
     }
   },
   "util_source": {
     "closed": "2026-11-09T20:06:32.510381-05:00",
-    "new": "2026-11-09T20:00:12-05:00",
-    "note": "closed=GitHub yesterday_rendering_sec; new=Fleet (fleet-ok); no-rebase (window starts 7:00PM Toronto = 00:00 UTC)"
+    "new": "2026-11-09T20:06:32.510381-05:00",
+    "note": "closed=GitHub yesterday_rendering_sec; new=GitHub today_rendering_sec (fleet snapshot not available in this VM)"
   }
 }
