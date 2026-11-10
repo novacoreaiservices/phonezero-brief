@@ -36,18 +36,18 @@
     "util": {
       "462": {
         "closed_h": 4.63,
-        "new_h": 0.03
+        "new_h": 0.11
       },
       "463": {
         "closed_h": 4.34,
-        "new_h": 0.02
+        "new_h": 0.29
       },
       "478": {
         "closed_h": 2.77,
-        "new_h": 0.02
+        "new_h": 0.17
       }
     },
-    "util_snapshot": "2026-11-09T19:18:08-05:00",
+    "util_snapshot": "2026-11-09T20:00:12-05:00",
     "earning_day": "7pm\u21927pm America/Toronto (00:00 UTC)",
     "brief_repo": "novacoreaiservices/phonezero-brief"
   },
