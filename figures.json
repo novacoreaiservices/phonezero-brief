@@ -1,31 +1,31 @@
 {
-  "baked_at": "2026-11-13T17:55:36.483348-05:00",
+  "baked_at": "2026-11-13T18:55:38.929236-05:00",
   "earning_day": "8pm\u21928pm America/Toronto",
   "closed_day_cad": 54.23,
-  "new_day_cad": 43.31,
+  "new_day_cad": 46.72,
   "month_estimate_cad": 1627,
   "fx": 1.42563,
   "closed_usd": 38.04,
-  "new_usd": 30.38,
+  "new_usd": 32.77,
   "snap_day_label": "Nov 13",
   "snap_y_label": "Nov 12",
   "util_hours": {
     "462": {
       "closed_h": 4.32,
-      "new_h": 4.03
+      "new_h": 4.41
     },
     "463": {
       "closed_h": 4.54,
-      "new_h": 2.99
+      "new_h": 3.2
     },
     "478": {
       "closed_h": 2.45,
-      "new_h": 2.43
+      "new_h": 2.55
     }
   },
   "util_source": {
-    "closed": "2026-11-13T16:58:06.320714-05:00",
-    "new": "2026-11-13T16:58:06.320714-05:00",
+    "closed": "2026-11-13T17:57:37.841128-05:00",
+    "new": "2026-11-13T17:57:37.841128-05:00",
     "note": "closed=GitHub yesterday_rendering_sec; new=GitHub today_rendering_sec (fleet snapshot not available in this VM)"
   },
   "render": {
@@ -33,14 +33,14 @@
     "epoch_end_utc": "2026-11-15T00:00:00Z",
     "console_as_of_utc": "2026-11-13T20:24:00Z",
     "total_render": 2.3021,
-    "total_cad": 5.0416,
+    "total_cad": 4.9725,
     "execution_render": 2.3018,
     "availability_render_console": 0.0,
-    "avail_est_render": 6.0784,
+    "avail_est_render": 6.1874,
     "avail_expected_close_render": 8.8553,
     "epoch_expected_total_render": 11.1574,
-    "epoch_expected_total_cad": 24.4347,
-    "render_price_cad": 2.19,
+    "epoch_expected_total_cad": 24.1,
+    "render_price_cad": 2.16,
     "nodes_execution_render": {
       "ghelmen-sakpel (x570, worker 463)": 1.1711,
       "hedmehg-megsegh (x870, worker 462)": 0.2513,
