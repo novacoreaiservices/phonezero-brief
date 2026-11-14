@@ -8,7 +8,7 @@
   },
   "callback": "+12892687236",
   "goal": "Deliver Sogni 8pm\u21928pm Toronto earnings briefing with live CAD and friendly worker hours, soft check-in, then end.",
-  "opener": "Hey Uzi, it's Novacore with your Sogni briefing. Quick reminder, your earning day runs eight pm to eight pm Toronto time. The last full day, the one that closed at eight pm last night, came in at forty-eight sixty-one Canadian take-home. Today's day, which closes at eight tonight, is already at seven twenty-two Canadian, so it's tracking right alongside. At the closed-day pace, November lands around sixteen fifty-eight Canadian. On the workers, four sixty-two was busy about four and three-quarter of the twenty-four hours on the closed day, and about half an hour so far today. four sixty-three was about three and a quarter hours, and about half an hour so far. four seventy-eight was about two and three-quarter hours, and a few minutes so far. On the Dispersed side, your three disNet nodes have earned two point three RENDER so far this epoch, worth about five Canadian, and there's about eight point nine more RENDER in availability pay landing when the epoch closes Saturday at seven pm \u2014 all-in, the epoch is tracking to roughly twenty-four Canadian. That's the update. Anything you want me to look into?",
+  "opener": "Hey Uzi, it's Novacore with your Sogni briefing. Quick reminder, your earning day runs eight pm to eight pm Toronto time. The last full day, the one that closed at eight pm last night, came in at forty-eight sixty-one Canadian take-home. Today's day, which closes at eight tonight, is already at ten fifty-four Canadian, so it's tracking right alongside. At the closed-day pace, November lands around sixteen fifty-eight Canadian. On the workers, four sixty-two was busy about four and three-quarter of the twenty-four hours on the closed day, and about one hour so far today. four sixty-three was about three and a quarter hours, and about one hour so far. four seventy-eight was about two and three-quarter hours, and about half an hour so far. On the Dispersed side, your three disNet nodes have earned two point three RENDER so far this epoch, worth about five Canadian, and there's about eight point nine more RENDER in availability pay landing when the epoch closes Saturday at seven pm \u2014 all-in, the epoch is tracking to roughly twenty-four Canadian. That's the update. Anything you want me to look into?",
   "constraints": [
     "disclose_ai off",
     "never say AI/PhoneZero/Ensia/NFT",
@@ -25,24 +25,24 @@
   ],
   "facts": {
     "closed_cad": 48.61,
-    "new_day_cad": 7.22,
+    "new_day_cad": 10.54,
     "month_est_cad": 1458,
     "fx": 1.426026,
     "util": {
       "462": {
         "closed_h": 4.67,
-        "new_h": 0.71
+        "new_h": 0.98
       },
       "463": {
         "closed_h": 3.32,
-        "new_h": 0.7
+        "new_h": 1.07
       },
       "478": {
         "closed_h": 2.84,
-        "new_h": 0.34
+        "new_h": 0.64
       }
     },
-    "util_snapshot": "2026-11-13T22:57:31.032781-05:00",
+    "util_snapshot": "2026-11-13T23:57:45.163608-05:00",
     "earning_day": "8pm\u21928pm America/Toronto",
     "brief_repo": "novacoreaiservices/phonezero-brief",
     "render": {
@@ -50,14 +50,14 @@
       "epoch_end_utc": "2026-11-15T00:00:00Z",
       "console_as_of_utc": "2026-11-13T20:24:00Z",
       "total_render": 2.3021,
-      "total_cad": 4.9495,
+      "total_cad": 4.9725,
       "execution_render": 2.3018,
       "availability_render_console": 0.0,
-      "avail_est_render": 6.7212,
+      "avail_est_render": 6.8284,
       "avail_expected_close_render": 8.8553,
       "epoch_expected_total_render": 11.1574,
-      "epoch_expected_total_cad": 23.9884,
-      "render_price_cad": 2.15,
+      "epoch_expected_total_cad": 24.1,
+      "render_price_cad": 2.16,
       "nodes_execution_render": {
         "ghelmen-sakpel (x570, worker 463)": 1.1711,
         "hedmehg-megsegh (x870, worker 462)": 0.2513,
