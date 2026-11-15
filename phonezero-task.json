@@ -7,12 +7,12 @@
     "phone": "+14169312306"
   },
   "callback": "+12892687236",
-  "goal": "Deliver the SHORT Novacore income brief: today's Sogni total, today's RENDER total, and the combined business total (whole Canadian dollars), soft check-in, then end. Detail only if Uzi asks.",
-  "opener": "Income today: from Sogni, fifty-two Canadian; from RENDER, eight Canadian; total for your business today, sixty Canadian. Anything you want me to look into?",
+  "goal": "Deliver the SHORT Novacore income brief: today's Sogni total, today's RENDER total, and the combined business total (whole Canadian dollars), plus the epoch's expected availability pay as a separate clause after the total, soft check-in, then end. Detail only if Uzi asks.",
+  "opener": "Income today: from Sogni, fifty-two Canadian; from RENDER, eight Canadian; total for your business today, sixty Canadian. Plus about thirty-four Canadian in availability pay landing Saturday at seven pm. Anything you want me to look into?",
   "constraints": [
     "disclose_ai off",
     "never say AI/PhoneZero/Ensia/NFT",
-    "short brief only: Sogni today + RENDER today + combined total, whole Canadian dollars",
+    "short brief only: Sogni today + RENDER today + combined total, whole Canadian dollars, plus availability expected at the epoch close as its own clause after the total",
     "no worker hours, closed day, month pace or epoch detail unless Uzi asks",
     "load this file; speak opener as first words"
   ],
