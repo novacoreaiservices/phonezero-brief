@@ -1,31 +1,31 @@
 {
-  "baked_at": "2026-11-14T19:55:34.768023-05:00",
+  "baked_at": "2026-11-14T20:48:42.492861-05:00",
   "earning_day": "8pm\u21928pm America/Toronto",
-  "closed_day_cad": 48.61,
-  "new_day_cad": 51.64,
-  "month_estimate_cad": 1458,
-  "fx": 1.426026,
-  "closed_usd": 34.09,
-  "new_usd": 36.21,
-  "snap_day_label": "Nov 14",
-  "snap_y_label": "Nov 13",
+  "closed_day_cad": 51.63,
+  "new_day_cad": 1.03,
+  "month_estimate_cad": 1549,
+  "fx": 1.425922,
+  "closed_usd": 36.21,
+  "new_usd": 0.72,
+  "snap_day_label": "Nov 15",
+  "snap_y_label": "Nov 14",
   "util_hours": {
     "462": {
-      "closed_h": 4.67,
-      "new_h": 4.99
+      "closed_h": 4.99,
+      "new_h": 0.07
     },
     "463": {
-      "closed_h": 3.32,
-      "new_h": 4.31
+      "closed_h": 4.31,
+      "new_h": 0.1
     },
     "478": {
-      "closed_h": 2.84,
-      "new_h": 2.14
+      "closed_h": 2.14,
+      "new_h": 0.08
     }
   },
   "util_source": {
-    "closed": "2026-11-14T18:57:37.149513-05:00",
-    "new": "2026-11-14T18:57:37.149513-05:00",
+    "closed": "2026-11-14T20:06:19.355579-05:00",
+    "new": "2026-11-14T20:06:19.355579-05:00",
     "note": "closed=GitHub yesterday_rendering_sec; new=GitHub today_rendering_sec (fleet snapshot not available in this VM)"
   },
   "render": {
@@ -33,21 +33,26 @@
     "epoch_end_utc": "2026-11-22T00:00:00Z",
     "console_as_of_utc": "2026-11-15T00:05:00Z",
     "total_render": 10.6803,
-    "total_cad": 20.7198,
+    "total_cad": 20.2926,
     "execution_render": 10.68,
-    "accurate_total_render": 10.7052,
-    "accurate_total_cad": 20.7681,
+    "accurate_total_render": 10.7961,
+    "accurate_total_cad": 20.5126,
     "availability_render_console": 7.314,
-    "avail_est_render": 0.0249,
+    "avail_est_render": 0.1158,
     "avail_expected_close_render": 18.0,
     "epoch_expected_total_render": 28.6803,
-    "epoch_expected_total_cad": 55.6398,
-    "render_price_cad": 1.94,
+    "epoch_expected_total_cad": 54.4926,
+    "render_price_cad": 1.9,
     "nodes_execution_render": {
       "ghelmen-sakpel (x570, worker 463)": 6.2121,
       "hedmehg-megsegh (x870, worker 462)": 1.3233,
       "drewwegh-domster (adam5070, worker 478)": 3.1446
     },
     "source_repo": "novacoreaiservices/disnet-income-history"
+  },
+  "render_today": {
+    "render": 3.9499,
+    "cad": 7.5,
+    "mode": "closed"
   }
 }

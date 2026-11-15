@@ -1,10 +1,10 @@
 {
-  "baked_at": "2026-11-14T19:55:34.768023-05:00",
-  "closed_cad": 48.61,
-  "new_day_cad": 51.64,
-  "month_est_cad": 1458,
+  "baked_at": "2026-11-14T20:48:42.492861-05:00",
+  "closed_cad": 51.63,
+  "new_day_cad": 1.03,
+  "month_est_cad": 1549,
   "render_total_render": 10.6803,
-  "render_total_cad": 20.7198,
+  "render_total_cad": 20.2926,
   "render_epoch": 66,
   "raw": {
     "figures": "figures.json",
