@@ -1,31 +1,31 @@
 {
-  "baked_at": "2026-11-15T13:55:37.666924-05:00",
+  "baked_at": "2026-11-15T14:56:08.269980-05:00",
   "earning_day": "8pm\u21928pm America/Toronto",
   "closed_day_cad": 51.63,
-  "new_day_cad": 37.02,
+  "new_day_cad": 39.74,
   "month_estimate_cad": 1549,
   "fx": 1.425922,
   "closed_usd": 36.21,
-  "new_usd": 25.96,
+  "new_usd": 27.87,
   "snap_day_label": "Nov 15",
   "snap_y_label": "Nov 14",
   "util_hours": {
     "462": {
       "closed_h": 4.99,
-      "new_h": 2.79
+      "new_h": 3.01
     },
     "463": {
       "closed_h": 4.31,
-      "new_h": 3.0
+      "new_h": 3.24
     },
     "478": {
       "closed_h": 2.14,
-      "new_h": 1.48
+      "new_h": 1.61
     }
   },
   "util_source": {
-    "closed": "2026-11-15T12:57:55.875728-05:00",
-    "new": "2026-11-15T12:57:55.875728-05:00",
+    "closed": "2026-11-15T13:57:53.280697-05:00",
+    "new": "2026-11-15T13:57:53.280697-05:00",
     "note": "closed=GitHub yesterday_rendering_sec; new=GitHub today_rendering_sec (fleet snapshot not available in this VM)"
   },
   "render": {
@@ -33,16 +33,16 @@
     "epoch_end_utc": "2026-11-22T00:00:00Z",
     "console_as_of_utc": "2026-11-15T16:41:00Z",
     "total_render": 10.6803,
-    "total_cad": 21.0402,
+    "total_cad": 20.9334,
     "execution_render": 10.68,
-    "accurate_total_render": 12.618,
-    "accurate_total_cad": 24.8575,
+    "accurate_total_render": 12.7248,
+    "accurate_total_cad": 24.9406,
     "availability_render_console": 7.314,
-    "avail_est_render": 1.9377,
+    "avail_est_render": 2.0445,
     "avail_expected_close_render": 18.0,
     "epoch_expected_total_render": 28.6803,
-    "epoch_expected_total_cad": 56.5002,
-    "render_price_cad": 1.97,
+    "epoch_expected_total_cad": 56.2134,
+    "render_price_cad": 1.96,
     "nodes_execution_render": {
       "ghelmen-sakpel (x570, worker 463)": 6.2121,
       "hedmehg-megsegh (x870, worker 462)": 1.3233,
@@ -52,9 +52,9 @@
   },
   "render_today": {
     "render": 3.9499,
-    "cad": 7.78,
+    "cad": 7.74,
     "mode": "closed",
     "exec_render": 1.3799,
-    "exec_cad": 2.72
+    "exec_cad": 2.7
   }
 }
