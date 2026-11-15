@@ -25,24 +25,24 @@
   ],
   "facts": {
     "closed_cad": 51.63,
-    "new_day_cad": 22.84,
+    "new_day_cad": 23.58,
     "month_est_cad": 1549,
     "fx": 1.425922,
     "util": {
       "462": {
         "closed_h": 4.99,
-        "new_h": 1.61
+        "new_h": 1.65
       },
       "463": {
         "closed_h": 4.31,
-        "new_h": 2.1
+        "new_h": 2.17
       },
       "478": {
         "closed_h": 2.14,
-        "new_h": 0.68
+        "new_h": 0.74
       }
     },
-    "util_snapshot": "2026-11-15T05:57:23.184501-05:00",
+    "util_snapshot": "2026-11-15T06:57:30.596265-05:00",
     "earning_day": "8pm\u21928pm America/Toronto",
     "brief_repo": "novacoreaiservices/phonezero-brief",
     "render": {
@@ -52,10 +52,10 @@
       "total_render": 10.6803,
       "total_cad": 21.3606,
       "execution_render": 10.68,
-      "accurate_total_render": 11.8677,
-      "accurate_total_cad": 23.7354,
+      "accurate_total_render": 11.9748,
+      "accurate_total_cad": 23.9496,
       "availability_render_console": 7.314,
-      "avail_est_render": 1.1874,
+      "avail_est_render": 1.2945,
       "avail_expected_close_render": 18.0,
       "epoch_expected_total_render": 28.6803,
       "epoch_expected_total_cad": 57.3606,
