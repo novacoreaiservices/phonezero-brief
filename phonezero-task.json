@@ -25,24 +25,24 @@
   ],
   "facts": {
     "closed_cad": 51.63,
-    "new_day_cad": 26.37,
+    "new_day_cad": 28.15,
     "month_est_cad": 1549,
     "fx": 1.425922,
     "util": {
       "462": {
         "closed_h": 4.99,
-        "new_h": 1.85
+        "new_h": 1.94
       },
       "463": {
         "closed_h": 4.31,
-        "new_h": 2.26
+        "new_h": 2.41
       },
       "478": {
         "closed_h": 2.14,
-        "new_h": 0.8
+        "new_h": 0.89
       }
     },
-    "util_snapshot": "2026-11-15T07:58:11.691778-05:00",
+    "util_snapshot": "2026-11-15T08:57:58.937425-05:00",
     "earning_day": "8pm\u21928pm America/Toronto",
     "brief_repo": "novacoreaiservices/phonezero-brief",
     "render": {
@@ -50,16 +50,16 @@
       "epoch_end_utc": "2026-11-22T00:00:00Z",
       "console_as_of_utc": "2026-11-15T00:05:00Z",
       "total_render": 10.6803,
-      "total_cad": 21.5742,
+      "total_cad": 21.147,
       "execution_render": 10.68,
-      "accurate_total_render": 12.084,
-      "accurate_total_cad": 24.4097,
+      "accurate_total_render": 12.1917,
+      "accurate_total_cad": 24.1396,
       "availability_render_console": 7.314,
-      "avail_est_render": 1.4037,
+      "avail_est_render": 1.5114,
       "avail_expected_close_render": 18.0,
       "epoch_expected_total_render": 28.6803,
-      "epoch_expected_total_cad": 57.9342,
-      "render_price_cad": 2.02,
+      "epoch_expected_total_cad": 56.787,
+      "render_price_cad": 1.98,
       "nodes_execution_render": {
         "ghelmen-sakpel (x570, worker 463)": 6.2121,
         "hedmehg-megsegh (x870, worker 462)": 1.3233,
@@ -69,10 +69,10 @@
     },
     "render_today": {
       "render": 3.9499,
-      "cad": 7.98,
+      "cad": 7.82,
       "mode": "closed",
       "exec_render": 1.3799,
-      "exec_cad": 2.79
+      "exec_cad": 2.73
     }
   },
   "instructions_note": "human assistant briefing the boss; speak opener verbatim as first live words"
