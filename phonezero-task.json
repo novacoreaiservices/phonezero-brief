@@ -7,16 +7,16 @@
     "phone": "+14169312306"
   },
   "callback": "+12892687236",
-  "goal": "Deliver Sogni 00:00 UTC (7pm EST / 8pm EDT Toronto) earnings briefing with income-history Combined CAD (and PAYG when asked) plus friendly worker hours, soft check-in, then end.",
-  "opener": "Hey Uzi, it's Novacore with your Sogni briefing. Your earning day still runs seven to seven, Toronto time. The day that just closed came in at $51.60 take-home, Canadian, all pay-as-you-go. Since seven, you're only at $1.21 so far. At the closed-day pace, November is looking like about $873.00. On the workers, four sixty-two was busy about four of the twenty-four hours on the closed day, and a few minutes so far today. four sixty-three was about four and a quarter hours, and a few minutes so far. four seventy-eight was about two and a quarter hours, and a few minutes so far. That's the update. Anything you want me to look into?",
+  "goal": "Deliver the SHORT Novacore income brief: today's Sogni total, today's RENDER total, and the combined business total (whole Canadian dollars), plus the epoch's expected availability pay as a separate clause after the total, soft check-in, then end. Detail only if Uzi asks.",
+  "opener": "Income today: from Sogni, fifty-two Canadian; from RENDER, zero Canadian; total for your business today, fifty-two Canadian. Plus about thirty-six Canadian in availability pay landing Saturday at seven pm. Anything you want me to look into?",
   "constraints": [
     "disclose_ai off",
     "never say AI/PhoneZero/Ensia/NFT",
-    "speak Combined CAD from sogni-income-history hourly 00:00 UTC window; distinguish PAYG vs Combined when asked; never invent figures",
-    "friendly worker hours only",
+    "short brief only: Sogni today + RENDER today + combined total, whole Canadian dollars, plus availability expected at the epoch close as its own clause after the total",
+    "no worker hours, closed day, month pace or epoch detail unless Uzi asks",
     "load this file; speak opener as first words"
   ],
-  "success": "Uzi heard closed CAD, new-day CAD, month estimate, and 462/463/478 hours; soft check-in done.",
+  "success": "Uzi heard today's Sogni CAD, today's RENDER CAD, and the combined business total; soft check-in done.",
   "voicemail": "Hey Uzi, Novacore with your Sogni numbers \u2014 I'll try you again shortly.",
   "playbook": [
     "speak opener from this file",
@@ -26,30 +26,54 @@
   "facts": {
     "closed_cad": 51.6,
     "new_day_cad": 1.21,
-    "month_est_cad": 873,
+    "month_est_cad": 1548,
     "fx": 1.426617,
-    "money_sot": "sogni-income-history hourly-income.csv 00:00 UTC window + snap.json + forecast.md",
-    "closed_payg_cad": 51.6,
-    "new_payg_cad": 1.21,
-    "payg_only": true,
-    "hourly_timestamp_toronto": "2026-11-15T19:58:56.918670-05:00",
     "util": {
       "462": {
         "closed_h": 3.94,
-        "new_h": 0.13
+        "new_h": 0.12
       },
       "463": {
         "closed_h": 4.34,
-        "new_h": 0.07
+        "new_h": 0.09
       },
       "478": {
         "closed_h": 2.16,
         "new_h": 0.05
       }
     },
-    "util_snapshot": "2026-11-15T19:53:06-05:00",
-    "earning_day": "7pm\u21927pm America/Toronto (00:00 UTC)",
-    "brief_repo": "novacoreaiservices/phonezero-brief"
+    "util_snapshot": "2026-11-15T20:06:24.883647-05:00",
+    "earning_day": "8pm\u21928pm America/Toronto",
+    "brief_repo": "novacoreaiservices/phonezero-brief",
+    "render": {
+      "epoch": 66,
+      "epoch_end_utc": "2026-11-22T00:00:00Z",
+      "console_as_of_utc": "2026-11-15T16:41:00Z",
+      "total_render": 10.6803,
+      "total_cad": 21.147,
+      "execution_render": 10.68,
+      "accurate_total_render": 13.368,
+      "accurate_total_cad": 26.4686,
+      "availability_render_console": 7.314,
+      "avail_est_render": 2.6877,
+      "avail_expected_close_render": 18.0,
+      "epoch_expected_total_render": 28.6803,
+      "epoch_expected_total_cad": 56.787,
+      "render_price_cad": 1.98,
+      "nodes_execution_render": {
+        "ghelmen-sakpel (x570, worker 463)": 6.2121,
+        "hedmehg-megsegh (x870, worker 462)": 1.3233,
+        "drewwegh-domster (adam5070, worker 478)": 3.1446
+      },
+      "source_repo": "novacoreaiservices/disnet-income-history"
+    },
+    "render_today": {
+      "render": 0.0,
+      "cad": 0.0,
+      "mode": "closed",
+      "exec_render": 0.0,
+      "exec_cad": 0.0
+    }
   },
   "instructions_note": "human assistant briefing the boss; speak opener verbatim as first live words"
 }
